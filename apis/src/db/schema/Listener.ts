@@ -1,5 +1,8 @@
-import { pgTable as table } from "drizzle-orm/pg-core";
-import { db } from "sim-idx";
+
+// Generated file. Do not edit manually.
+import { pgEnum, pgTable as table } from "drizzle-orm/pg-core";
+import * as t from "drizzle-orm/pg-core";
+import { db, types } from "sim-idx";
 
 export const poolCreated = table("pool_created", {
   chainId: db.uint64('chain_id'),
