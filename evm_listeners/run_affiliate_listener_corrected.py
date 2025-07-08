@@ -170,14 +170,16 @@ def fetch_portals_affiliate_events(chain_id: int, start_block: int, end_block: i
         
         for log in logs:
             # Decode the portal event
+            data_bytes = log['data'][2:] if log['data'].startswith('0x') else log['data']
             decoded = decode(
                 ['address', 'uint256', 'address', 'uint256', 'address', 'address', 'address', 'address'],
-                bytes.fromhex(log['data'][2:])
+                bytes.fromhex(data_bytes)
             )
             
-            sender = '0x' + log['topics'][1][-40:].hex()
-            broadcaster = '0x' + log['topics'][2][-40:].hex()
-            partner = '0x' + log['topics'][3][-40:].hex()
+            # Handle HexBytes objects properly
+            sender = '0x' + log['topics'][1][-40:].hex() if hasattr(log['topics'][1], 'hex') else '0x' + log['topics'][1][-40:]
+            broadcaster = '0x' + log['topics'][2][-40:].hex() if hasattr(log['topics'][2], 'hex') else '0x' + log['topics'][2][-40:]
+            partner = '0x' + log['topics'][3][-40:].hex() if hasattr(log['topics'][3], 'hex') else '0x' + log['topics'][3][-40:]
             
             # Only track events where ShapeShift is the partner (affiliate)
             if partner.lower() == affiliate_address.lower():
@@ -191,13 +193,16 @@ def fetch_portals_affiliate_events(chain_id: int, start_block: int, end_block: i
                 # Look for affiliate fee payment in transaction
                 affiliate_token, affiliate_amount = fetch_affiliate_payment(w3, log['transactionHash'], affiliate_address)
                 
+                # Handle transaction hash properly
+                tx_hash = log['transactionHash'].hex() if hasattr(log['transactionHash'], 'hex') else str(log['transactionHash'])
+                
                 cursor.execute('''
                     INSERT INTO portals_affiliate_events 
                     (tx_hash, block_number, input_token, input_amount, output_token, output_amount,
                      sender, broadcaster, recipient, partner, timestamp, affiliate_token, affiliate_amount)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
-                    log['transactionHash'].hex(), log['blockNumber'], decoded[0], str(decoded[1]),
+                    tx_hash, log['blockNumber'], decoded[0], str(decoded[1]),
                     decoded[2], str(decoded[3]), sender, broadcaster, decoded[4], partner,
                     timestamp, affiliate_token, affiliate_amount
                 ))
@@ -212,7 +217,7 @@ def fetch_portals_affiliate_events(chain_id: int, start_block: int, end_block: i
     conn.commit()
     conn.close()
 
-def fetch_affiliate_payment(w3: Web3, tx_hash: bytes, affiliate_address: str) -> Tuple[Optional[str], Optional[str]]:
+def fetch_affiliate_payment(w3: Web3, tx_hash, affiliate_address: str) -> Tuple[Optional[str], Optional[str]]:
     """Fetch affiliate fee payment from transaction logs"""
     try:
         tx_receipt = w3.eth.get_transaction_receipt(tx_hash)
@@ -230,7 +235,9 @@ def fetch_affiliate_payment(w3: Web3, tx_hash: bytes, affiliate_address: str) ->
         
         return None, None
     except Exception as e:
-        logger.error(f"Error fetching affiliate payment for tx {tx_hash.hex()}: {e}")
+        # Handle both bytes and HexBytes objects
+        tx_hash_hex = tx_hash.hex() if hasattr(tx_hash, 'hex') else str(tx_hash)
+        logger.error(f"Error fetching affiliate payment for tx {tx_hash_hex}: {e}")
         return None, None
 
 def fetch_cowswap_affiliate_trades(chain_id: int, start_block: int, end_block: int):
@@ -257,9 +264,10 @@ def fetch_cowswap_affiliate_trades(chain_id: int, start_block: int, end_block: i
         
         for log in logs:
             # Decode the trade event
+            data_bytes = log['data'][2:] if log['data'].startswith('0x') else log['data']
             decoded = decode(
                 ['address', 'address', 'address', 'uint256', 'uint256', 'uint256', 'bytes', 'bytes32'],
-                bytes.fromhex(log['data'][2:])
+                bytes.fromhex(data_bytes)
             )
             
             owner = decoded[0]
@@ -273,13 +281,17 @@ def fetch_cowswap_affiliate_trades(chain_id: int, start_block: int, end_block: i
                 except:
                     timestamp = int(time.time())
                 
+                # Handle transaction hash and order_uid properly
+                tx_hash = log['transactionHash'].hex() if hasattr(log['transactionHash'], 'hex') else str(log['transactionHash'])
+                order_uid = decoded[6].hex() if hasattr(decoded[6], 'hex') else str(decoded[6])
+                
                 cursor.execute('''
                     INSERT INTO cowswap_affiliate_trades 
                     (tx_hash, block_number, owner, sell_token, buy_token, sell_amount, buy_amount, fee_amount, order_uid, timestamp)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
-                    log['transactionHash'].hex(), log['blockNumber'], owner, decoded[1], decoded[2],
-                    str(decoded[3]), str(decoded[4]), str(decoded[5]), decoded[6].hex(), timestamp
+                    tx_hash, log['blockNumber'], owner, decoded[1], decoded[2],
+                    str(decoded[3]), str(decoded[4]), str(decoded[5]), order_uid, timestamp
                 ))
                 affiliate_trades += 1
         
@@ -332,18 +344,22 @@ def fetch_zerox_affiliate_fees(chain_id: int, start_block: int, end_block: int):
                         except:
                             timestamp = int(time.time())
                         
+                        # Handle transaction hash properly
+                        tx_hash = log['transactionHash'].hex() if hasattr(log['transactionHash'], 'hex') else str(log['transactionHash'])
+                        
                         cursor.execute('''
                             INSERT INTO zerox_affiliate_fees 
                             (tx_hash, block_number, sender, affiliate_fee_token, affiliate_fee_amount, affiliate_address, timestamp)
                             VALUES (?, ?, ?, ?, ?, ?, ?)
                         ''', (
-                            log['transactionHash'].hex(), log['blockNumber'], tx['from'],
+                            tx_hash, log['blockNumber'], tx['from'],
                             affiliate_token, affiliate_amount, affiliate_address, timestamp
                         ))
                         affiliate_fees += 1
                     
                 except Exception as e:
-                    logger.error(f"Error processing 0x transaction {log['transactionHash'].hex()}: {e}")
+                    tx_hash = log['transactionHash'].hex() if hasattr(log['transactionHash'], 'hex') else str(log['transactionHash'])
+                    logger.error(f"Error processing 0x transaction {tx_hash}: {e}")
         
         if affiliate_fees > 0:
             logger.info(f"Found {affiliate_fees} 0x affiliate fee payments in blocks {start_block}-{end_block}")
