@@ -1,0 +1,19 @@
+# Core blockchain dependencies
+web3==6.15.1
+requests==2.31.0
+python-dotenv==1.0.0
+
+# Web scraping dependencies
+playwright==1.42.0
+beautifulsoup4==4.12.3
+
+# Data processing
+pandas==2.1.4
+typing-extensions==4.8.0
+
+# Standard library modules (included with Python)
+# sqlite3, logging, datetime, typing, asyncio
+
+# Additional utilities
+aiohttp>=3.8.0
+websockets>=11.0.0 
