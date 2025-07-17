@@ -22,7 +22,11 @@ logger = logging.getLogger(__name__)
 
 # Configuration
 DB_PATH = 'shapeshift_affiliate_fees.db'
-INFURA_URL = os.getenv('INFURA_URL', 'https://mainnet.infura.io/v3/YOUR_INFURA_KEY')
+INFURA_API_KEY = os.getenv('INFURA_API_KEY')
+if INFURA_API_KEY:
+    INFURA_URL = f'https://mainnet.infura.io/v3/{INFURA_API_KEY}'
+else:
+    INFURA_URL = os.getenv('INFURA_URL', 'https://mainnet.infura.io/v3/YOUR_INFURA_KEY')
 POLYGON_RPC = os.getenv('POLYGON_RPC', 'https://polygon-rpc.com')
 OPTIMISM_RPC = os.getenv('OPTIMISM_RPC', 'https://mainnet.optimism.io')
 ARBITRUM_RPC = os.getenv('ARBITRUM_RPC', 'https://arb1.arbitrum.io/rpc')

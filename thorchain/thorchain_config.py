@@ -8,7 +8,7 @@ import os
 # THORChain Midgard API configuration
 THORCHAIN_CONFIG = {
     'midgard_url': os.getenv('THORCHAIN_MIDGARD_URL', 'https://midgard.ninerealms.com'),
-    'affiliate_address': 'thor1z8s0yk6q86nqwsc2gagv4n9yt9c0hk9qtszt0p',  # ShapeShift affiliate
+    'affiliate_address': 'ss',  # ShapeShift affiliate
     'chain_name': 'THORChain',
     'chain_id': 'thorchain',
     'supported_assets': [

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ViewBlock Extension Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-table { border-collapse: collapse; width: 100%; }
+        .test-table th, .test-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .test-table th { background-color: #f2f2f2; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>ViewBlock Extension Test Page</h1>
+    
+    <div id="status"></div>
+    
+    <h2>Test Table (should be detected by extension)</h2>
+    <table class="test-table">
+        <thead>
+            <tr>
+                <th>Transaction Hash</th>
+                <th>Block Height</th>
+                <th>Timestamp</th>
+                <th>From Address</th>
+                <th>To Address</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td title="0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef">0x1234...abcd</td>
+                <td title="12345678">12,345,678</td>
+                <td title="2025-07-09 10:30:45">2025-07-09</td>
+                <td title="thor1abcdefghijklmnopqrstuvwxyz1234567890">thor1abc...7890</td>
+                <td title="thor1zyxwvutsrqponmlkjihgfedcba0987654321">thor1zyx...4321</td>
+                <td title="1.234 BTC → 0.567 ETH">1.234 BTC → 0.567 ETH</td>
+            </tr>
+            <tr>
+                <td title="0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890">0xabcd...7890</td>
+                <td title="12345679">12,345,679</td>
+                <td title="2025-07-09 10:31:15">2025-07-09</td>
+                <td title="thor1qwertyuiopasdfghjklzxcvbnm1234567890">thor1qwe...7890</td>
+                <td title="thor1mnbvcxzlkjhgfdsapoiuytrewq0987654321">thor1mnb...4321</td>
+                <td title="0.5 ETH → 0.002 BTC">0.5 ETH → 0.002 BTC</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h2>Test Instructions</h2>
+    <ol>
+        <li>Make sure the ViewBlock extension is installed and enabled</li>
+        <li>Open Chrome DevTools (F12) and go to Console tab</li>
+        <li>Click the extension icon and try "Debug Page Structure"</li>
+        <li>Check the console for debug output</li>
+        <li>Try "Capture Current Page" to test data extraction</li>
+    </ol>
+    
+    <script>
+        // Check if extension is loaded
+        if (window.location.href.includes('viewblock.io/thorchain/txs')) {
+            document.getElementById('status').innerHTML = 
+                '<div class="status success">✅ Extension should work on ViewBlock page</div>';
+        } else {
+            document.getElementById('status').innerHTML = 
+                '<div class="status error">❌ This is a test page. Go to ViewBlock for real testing.</div>';
+        }
+        
+        // Listen for extension messages
+        if (typeof chrome !== 'undefined' && chrome.runtime) {
+            console.log('Chrome extension API available');
+        } else {
+            console.log('Chrome extension API not available');
+        }
+    </script>
+</body>
+</html> 

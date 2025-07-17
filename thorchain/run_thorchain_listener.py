@@ -22,7 +22,7 @@ DB_PATH = 'shapeshift_thorchain_fees.db'
 THORCHAIN_MIDGARD_URL = os.getenv('THORCHAIN_MIDGARD_URL', 'https://midgard.ninerealms.com')
 
 # ShapeShift affiliate address for THORChain
-SHAPESHIFT_AFFILIATE = "thor1z8s0yk6q86nqwsc2gagv4n9yt9c0hk9qtszt0p"
+SHAPESHIFT_AFFILIATE = "ss"
 
 def init_database():
     """Initialize the database with THORChain affiliate fee table"""

@@ -25,7 +25,11 @@ logger = logging.getLogger(__name__)
 DB_PATH = 'shapeshift_affiliate_fees_lightweight.db'
 
 # Use environment variables for RPC URLs
-INFURA_URL = os.getenv('INFURA_URL', 'https://mainnet.infura.io/v3/YOUR_INFURA_KEY')
+INFURA_API_KEY = os.getenv('INFURA_API_KEY')
+if INFURA_API_KEY:
+    INFURA_URL = f'https://mainnet.infura.io/v3/{INFURA_API_KEY}'
+else:
+    INFURA_URL = os.getenv('INFURA_URL', 'https://mainnet.infura.io/v3/YOUR_INFURA_KEY')
 POLYGON_RPC = os.getenv('POLYGON_RPC', 'https://polygon-rpc.com')
 
 # ShapeShift affiliate addresses by chain

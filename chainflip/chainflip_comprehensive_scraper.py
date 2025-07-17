@@ -27,7 +27,7 @@ class ChainflipComprehensiveScraper:
     async def scrape_with_full_addresses(self):
         """Main scraping function implementing all extraction techniques."""
         async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=False)
+            browser = await p.chromium.launch(headless=True)
             page = await browser.new_page()
             
             # Set up network interception
