@@ -1,51 +1,0 @@
-nohup: ignoring input
-2025-07-08 16:00:42,739 - INFO - Starting comprehensive ShapeShift affiliate fee tracker
-2025-07-08 16:00:42,739 - INFO - This will collect data from EVM, Chainflip, and THORChain
-2025-07-08 16:00:42,742 - INFO - Comprehensive affiliate fee database setup complete
-2025-07-08 16:00:42,742 - INFO - Starting EVM listener...
-2025-07-08 16:00:43,172 - INFO - Starting ShapeShift affiliate fee tracker (progress version)
-2025-07-08 16:00:43,172 - INFO - Progress will be displayed in real-time...
-2025-07-08 16:00:43,172 - INFO - Progress affiliate fee database setup complete
-2025-07-08 16:00:43,172 - INFO - Processing chain 1
-2025-07-08 16:00:46,898 - ERROR - Error processing chain 1: 401 Client Error: Unauthorized for url: https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161
-2025-07-08 16:00:46,899 - INFO - Processing chain 137
-2025-07-08 16:00:47,031 - INFO - Chain 137: Split into 576 chunks from 73718765 to 73747565
-Progress: 10/576 blocks (1.7%) | Rate: 0.2 blocks/sec | CowSwap: 0 | 0x: 2 | Affiliate: 0 | Elapsed: 47sProgress: 20/576 blocks (3.5%) | Rate: 0.3 blocks/sec | CowSwap: 5 | 0x: 2 | Affiliate: 0 | Elapsed: 71sProgress: 30/576 blocks (5.2%) | Rate: 0.3 blocks/sec | CowSwap: 10 | 0x: 3 | Affiliate: 0 | Elapsed: 115sProgress: 40/576 blocks (6.9%) | Rate: 0.3 blocks/sec | CowSwap: 10 | 0x: 4 | Affiliate: 0 | Elapsed: 142sProgress: 50/576 blocks (8.7%) | Rate: 0.3 blocks/sec | CowSwap: 10 | 0x: 6 | Affiliate: 0 | Elapsed: 174sProgress: 60/576 blocks (10.4%) | Rate: 0.3 blocks/sec | CowSwap: 10 | 0x: 9 | Affiliate: 0 | Elapsed: 208sProgress: 70/576 blocks (12.2%) | Rate: 0.3 blocks/sec | CowSwap: 10 | 0x: 13 | Affiliate: 0 | Elapsed: 229sProgress: 80/576 blocks (13.9%) | Rate: 0.3 blocks/sec | CowSwap: 14 | 0x: 14 | Affiliate: 0 | Elapsed: 254sProgress: 90/576 blocks (15.6%) | Rate: 0.3 blocks/sec | CowSwap: 14 | 0x: 14 | Affiliate: 0 | Elapsed: 278sProgress: 100/576 blocks (17.4%) | Rate: 0.3 blocks/sec | CowSwap: 14 | 0x: 14 | Affiliate: 0 | Elapsed: 308sProgress: 110/576 blocks (19.1%) | Rate: 0.3 blocks/sec | CowSwap: 42 | 0x: 15 | Affiliate: 0 | Elapsed: 356sProgress: 120/576 blocks (20.8%) | Rate: 0.3 blocks/sec | CowSwap: 59 | 0x: 18 | Affiliate: 0 | Elapsed: 394sProgress: 130/576 blocks (22.6%) | Rate: 0.3 blocks/sec | CowSwap: 63 | 0x: 18 | Affiliate: 0 | Elapsed: 415sProgress: 140/576 blocks (24.3%) | Rate: 0.3 blocks/sec | CowSwap: 75 | 0x: 20 | Affiliate: 0 | Elapsed: 447sProgress: 150/576 blocks (26.0%) | Rate: 0.3 blocks/sec | CowSwap: 80 | 0x: 20 | Affiliate: 0 | Elapsed: 481sProgress: 160/576 blocks (27.8%) | Rate: 0.3 blocks/sec | CowSwap: 80 | 0x: 21 | Affiliate: 0 | Elapsed: 506sProgress: 170/576 blocks (29.5%) | Rate: 0.3 blocks/sec | CowSwap: 80 | 0x: 24 | Affiliate: 0 | Elapsed: 526sProgress: 180/576 blocks (31.2%) | Rate: 0.3 blocks/sec | CowSwap: 88 | 0x: 24 | Affiliate: 0 | Elapsed: 552sProgress: 190/576 blocks (33.0%) | Rate: 0.3 blocks/sec | CowSwap: 98 | 0x: 24 | Affiliate: 0 | Elapsed: 571sProgress: 200/576 blocks (34.7%) | Rate: 0.3 blocks/sec | CowSwap: 98 | 0x: 30 | Affiliate: 0 | Elapsed: 631sProgress: 210/576 blocks (36.5%) | Rate: 0.3 blocks/sec | CowSwap: 98 | 0x: 33 | Affiliate: 0 | Elapsed: 653sProgress: 220/576 blocks (38.2%) | Rate: 0.3 blocks/sec | CowSwap: 108 | 0x: 38 | Affiliate: 0 | Elapsed: 670sProgress: 230/576 blocks (39.9%) | Rate: 0.3 blocks/sec | CowSwap: 113 | 0x: 44 | Affiliate: 0 | Elapsed: 700sProgress: 240/576 blocks (41.7%) | Rate: 0.3 blocks/sec | CowSwap: 154 | 0x: 44 | Affiliate: 0 | Elapsed: 737sProgress: 250/576 blocks (43.4%) | Rate: 0.3 blocks/sec | CowSwap: 169 | 0x: 50 | Affiliate: 0 | Elapsed: 757sProgress: 260/576 blocks (45.1%) | Rate: 0.3 blocks/sec | CowSwap: 192 | 0x: 50 | Affiliate: 0 | Elapsed: 777sProgress: 270/576 blocks (46.9%) | Rate: 0.3 blocks/sec | CowSwap: 202 | 0x: 51 | Affiliate: 0 | Elapsed: 795sProgress: 280/576 blocks (48.6%) | Rate: 0.3 blocks/sec | CowSwap: 234 | 0x: 51 | Affiliate: 0 | Elapsed: 824sProgress: 290/576 blocks (50.3%) | Rate: 0.3 blocks/sec | CowSwap: 259 | 0x: 53 | Affiliate: 0 | Elapsed: 853sProgress: 300/576 blocks (52.1%) | Rate: 0.3 blocks/sec | CowSwap: 283 | 0x: 59 | Affiliate: 0 | Elapsed: 874sProgress: 310/576 blocks (53.8%) | Rate: 0.3 blocks/sec | CowSwap: 313 | 0x: 65 | Affiliate: 0 | Elapsed: 891sProgress: 320/576 blocks (55.6%) | Rate: 0.4 blocks/sec | CowSwap: 322 | 0x: 66 | Affiliate: 0 | Elapsed: 909sProgress: 330/576 blocks (57.3%) | Rate: 0.4 blocks/sec | CowSwap: 330 | 0x: 66 | Affiliate: 0 | Elapsed: 932sProgress: 340/576 blocks (59.0%) | Rate: 0.4 blocks/sec | CowSwap: 334 | 0x: 68 | Affiliate: 0 | Elapsed: 960sProgress: 350/576 blocks (60.8%) | Rate: 0.4 blocks/sec | CowSwap: 339 | 0x: 79 | Affiliate: 0 | Elapsed: 998sProgress: 360/576 blocks (62.5%) | Rate: 0.4 blocks/sec | CowSwap: 343 | 0x: 86 | Affiliate: 0 | Elapsed: 1015sProgress: 370/576 blocks (64.2%) | Rate: 0.4 blocks/sec | CowSwap: 351 | 0x: 90 | Affiliate: 0 | Elapsed: 1043sProgress: 380/576 blocks (66.0%) | Rate: 0.4 blocks/sec | CowSwap: 358 | 0x: 92 | Affiliate: 0 | Elapsed: 1072sProgress: 390/576 blocks (67.7%) | Rate: 0.4 blocks/sec | CowSwap: 391 | 0x: 95 | Affiliate: 0 | Elapsed: 1087sProgress: 400/576 blocks (69.4%) | Rate: 0.4 blocks/sec | CowSwap: 410 | 0x: 96 | Affiliate: 0 | Elapsed: 1103sProgress: 410/576 blocks (71.2%) | Rate: 0.4 blocks/sec | CowSwap: 440 | 0x: 97 | Affiliate: 0 | Elapsed: 1120sProgress: 420/576 blocks (72.9%) | Rate: 0.4 blocks/sec | CowSwap: 445 | 0x: 97 | Affiliate: 0 | Elapsed: 1144sProgress: 430/576 blocks (74.7%) | Rate: 0.4 blocks/sec | CowSwap: 450 | 0x: 99 | Affiliate: 0 | Elapsed: 1167sProgress: 440/576 blocks (76.4%) | Rate: 0.4 blocks/sec | CowSwap: 459 | 0x: 104 | Affiliate: 0 | Elapsed: 1186sProgress: 450/576 blocks (78.1%) | Rate: 0.4 blocks/sec | CowSwap: 459 | 0x: 106 | Affiliate: 0 | Elapsed: 1211sProgress: 460/576 blocks (79.9%) | Rate: 0.4 blocks/sec | CowSwap: 476 | 0x: 106 | Affiliate: 0 | Elapsed: 1260sProgress: 470/576 blocks (81.6%) | Rate: 0.4 blocks/sec | CowSwap: 476 | 0x: 107 | Affiliate: 0 | Elapsed: 1279sProgress: 480/576 blocks (83.3%) | Rate: 0.4 blocks/sec | CowSwap: 476 | 0x: 109 | Affiliate: 0 | Elapsed: 1295sProgress: 490/576 blocks (85.1%) | Rate: 0.4 blocks/sec | CowSwap: 480 | 0x: 112 | Affiliate: 0 | Elapsed: 1319sProgress: 500/576 blocks (86.8%) | Rate: 0.4 blocks/sec | CowSwap: 480 | 0x: 113 | Affiliate: 0 | Elapsed: 1343sProgress: 510/576 blocks (88.5%) | Rate: 0.4 blocks/sec | CowSwap: 488 | 0x: 115 | Affiliate: 0 | Elapsed: 1361sProgress: 520/576 blocks (90.3%) | Rate: 0.4 blocks/sec | CowSwap: 488 | 0x: 118 | Affiliate: 0 | Elapsed: 1380sProgress: 530/576 blocks (92.0%) | Rate: 0.4 blocks/sec | CowSwap: 493 | 0x: 119 | Affiliate: 0 | Elapsed: 1403sProgress: 540/576 blocks (93.8%) | Rate: 0.4 blocks/sec | CowSwap: 493 | 0x: 127 | Affiliate: 0 | Elapsed: 1429sProgress: 550/576 blocks (95.5%) | Rate: 0.4 blocks/sec | CowSwap: 506 | 0x: 131 | Affiliate: 0 | Elapsed: 1461sProgress: 560/576 blocks (97.2%) | Rate: 0.4 blocks/sec | CowSwap: 515 | 0x: 132 | Affiliate: 0 | Elapsed: 1484sProgress: 570/576 blocks (99.0%) | Rate: 0.4 blocks/sec | CowSwap: 533 | 0x: 134 | Affiliate: 0 | Elapsed: 1502s2025-07-08 16:25:54,645 - INFO - Progress affiliate fee listener run complete!
-2025-07-08 16:25:54,648 - INFO - Progress Affiliate Fee Summary:
-2025-07-08 16:25:54,648 - INFO -   Total time: 1511.5 seconds
-2025-07-08 16:25:54,648 - INFO -   Blocks processed: 576
-2025-07-08 16:25:54,648 - INFO -   CowSwap events: 736
-2025-07-08 16:25:54,648 - INFO -   0x events: 195
-2025-07-08 16:25:54,648 - INFO -   Affiliate transfers: 0
-2025-07-08 16:25:54,648 - INFO -   Total events: 931
-2025-07-08 16:25:54,648 - INFO - EVM listener completed successfully
-2025-07-08 16:25:54,648 - INFO - Starting Chainflip scraper...
-2025-07-08 16:26:40,640 - INFO - Chainflip scraper completed successfully
-2025-07-08 16:26:40,641 - INFO - Starting THORChain listener...
-2025-07-08 16:35:35,233 - INFO - THORChain listener completed successfully
-2025-07-08 16:35:35,234 - INFO - Merging data from all databases...
-2025-07-08 16:35:35,260 - INFO - Merged 736 CowSwap events, 195 0x events, 0 affiliate transfers
-2025-07-08 16:35:35,261 - INFO - Database merge completed successfully
-2025-07-08 16:35:35,261 - INFO - Generating comprehensive summary...
-2025-07-08 16:35:35,262 - INFO - ============================================================
-2025-07-08 16:35:35,262 - INFO - COMPREHENSIVE AFFILIATE FEE SUMMARY
-2025-07-08 16:35:35,262 - INFO - ============================================================
-2025-07-08 16:35:35,263 - INFO - Total collection time: 2092.5 seconds
-2025-07-08 16:35:35,263 - INFO - 
-2025-07-08 16:35:35,263 - INFO - EVM Data (Ethereum/Polygon):
-2025-07-08 16:35:35,263 - INFO -   CowSwap events: 736
-2025-07-08 16:35:35,264 - INFO -   0x Protocol events: 195
-2025-07-08 16:35:35,264 - INFO -   Affiliate transfers: 0
-2025-07-08 16:35:35,264 - INFO - 
-2025-07-08 16:35:35,264 - INFO - Chainflip Data:
-2025-07-08 16:35:35,264 - INFO -   Total records: 0
-2025-07-08 16:35:35,265 - INFO -   Total affiliate fees: $0.00
-2025-07-08 16:35:35,265 - INFO - 
-2025-07-08 16:35:35,265 - INFO - THORChain Data:
-2025-07-08 16:35:35,265 - INFO -   Total records: 0
-2025-07-08 16:35:35,265 - INFO -   Total affiliate fees: 0.000000
-2025-07-08 16:35:35,266 - INFO - 
-2025-07-08 16:35:35,266 - INFO - GRAND TOTAL: 931 records
-2025-07-08 16:35:35,266 - INFO - ============================================================
-2025-07-08 16:35:35,266 - INFO - Comprehensive affiliate fee collection complete!
-
