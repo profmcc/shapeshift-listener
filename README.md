@@ -1,4 +1,28 @@
-# ShapeShift Affiliate Fee Tracker
+# ShapeShift Affiliate Tracker
+
+## Python Package Requirements
+
+To use the debug scripts and token cache utilities, install the following Python packages:
+
+```sh
+pip install web3 eth-abi requests
+```
+
+- `web3` — for interacting with EVM blockchains
+- `eth-abi` — for ABI decoding of logs and events
+- `requests` — for HTTP API calls (Etherscan, 4byte.directory, etc.)
+
+If you use Jupyter notebooks in `databases/`, you may also need:
+
+```sh
+pip install jupyter pandas matplotlib
+```
+
+**Note:**
+- All scripts in `shared/` and `scripts/debug/` are compatible with Python 3.8+.
+- If you encounter missing package errors, install the required package with `pip install <package>`.
+
+---
 
 A comprehensive multi-protocol affiliate fee tracking system for ShapeShift's cross-chain affiliate program. Tracks affiliate revenues from Relay, Portals, Chainflip, THORChain, CowSwap, and 0x Protocol.
 
