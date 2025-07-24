@@ -18,8 +18,10 @@ import sys
 # Add shared directory to path for block tracker
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../shared')))
 from block_tracker import get_start_block, set_last_processed_block, init_database as init_block_tracker
+from shared.logging import setup_logger, get_logger
+setup_logger("relay_listener")
+logger = get_logger(__name__)
 
-# Configuration
 ARBITRUM_RPC = f"https://arbitrum-mainnet.infura.io/v3/{os.getenv('INFURA_API_KEY', '208a3474635e4ebe8ee409cef3fbcd40')}"
 CMC_API_KEY = "64dfaca3-439f-440d-8540-f11e06840ccc"
 RELAY_CONTRACT = "0xBBbfD134E9b44BfB5123898BA36b01dE7ab93d98"
