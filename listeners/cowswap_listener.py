@@ -14,6 +14,11 @@ import logging
 from web3 import Web3
 from eth_abi import decode
 
+# Add shared directory to path
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from shared.token_name_resolver import TokenNameResolver
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -23,6 +28,9 @@ class CowSwapListener:
         self.db_path = db_path
         self.infura_api_key = os.getenv('INFURA_API_KEY', '208a3474635e4ebe8ee409cef3fbcd40')
         self.init_database()
+        
+        # Initialize token name resolver
+        self.token_resolver = TokenNameResolver()
         
         # ShapeShift affiliate addresses by chain
         self.shapeshift_affiliates = {
@@ -109,6 +117,8 @@ class CowSwapListener:
                 app_data TEXT,
                 affiliate_fee_usd REAL,
                 volume_usd REAL,
+                sell_token_name TEXT,
+                buy_token_name TEXT,
                 created_at INTEGER DEFAULT (strftime('%s', 'now')),
                 UNIQUE(tx_hash, chain, event_type)
             )
@@ -286,6 +296,24 @@ class CowSwapListener:
                     event['buy_amount'], event['fee_amount'], event['order_uid'],
                     event['app_data'], event['affiliate_fee_usd'], event['volume_usd']
                 ))
+                
+                # Add token names for new entries
+                if event['sell_token']:
+                    sell_token_name = self.token_resolver.get_token_name(event['sell_token'], event['chain'])
+                    cursor.execute('''
+                        UPDATE cowswap_transactions 
+                        SET sell_token_name = ? 
+                        WHERE tx_hash = ? AND chain = ? AND sell_token = ?
+                    ''', (sell_token_name, event['tx_hash'], event['chain'], event['sell_token']))
+                
+                if event['buy_token']:
+                    buy_token_name = self.token_resolver.get_token_name(event['buy_token'], event['chain'])
+                    cursor.execute('''
+                        UPDATE cowswap_transactions 
+                        SET buy_token_name = ? 
+                        WHERE tx_hash = ? AND chain = ? AND buy_token = ?
+                    ''', (buy_token_name, event['tx_hash'], event['chain'], event['buy_token']))
+                    
             except Exception as e:
                 logger.error(f"Error saving event {event['tx_hash']}: {e}")
                 

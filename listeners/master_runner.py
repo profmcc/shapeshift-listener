@@ -20,9 +20,9 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 try:
     import relay_listener
     from portals_listener import PortalsListener
-    from chainflip_listener import ChainflipBrokerListener
     from thorchain_listener import THORChainListener
-    from cowswap_listener import CowSwapListener
+    from chainflip_listener import ChainflipBrokerListener
+    from cowswap_listener_dune import CowSwapDuneListener
     from zerox_listener import ZeroXListener
 except ImportError as e:
     print(f"❌ Error importing listeners: {e}")
@@ -41,10 +41,10 @@ class MasterRunner:
         # Initialize all listeners
         self.listeners = {
             'portals': PortalsListener(db_path="databases/portals_transactions.db"),
-            'chainflip': ChainflipBrokerListener(),
             'thorchain': THORChainListener(db_path="databases/thorchain_transactions.db"),
-            'cowswap': CowSwapListener(db_path="databases/cowswap_transactions.db"),
-            'zerox': ZeroXListener(db_path="databases/zerox_transactions.db")
+            'chainflip': ChainflipBrokerListener(),
+            'cowswap': CowSwapDuneListener(db_path="databases/cowswap_transactions.db"),
+            'zerox': ZeroXListener(db_path="databases/zerox_transactions.db"),
         }
 
     def init_comprehensive_database(self):
@@ -105,9 +105,10 @@ class MasterRunner:
         
         try:
             protocol_start = time.time()
-            relay_listener.init_database()
-            transactions = relay_listener.find_last_20_shapeshift_transactions()
-            relay_listener.save_transactions_to_db(transactions)
+            # Use the relay listener directly with scan_chain method
+            from relay_listener import RelayListener
+            relay_listener = RelayListener()
+            fee_count = relay_listener.scan_chain('base', None, None)  # Scan recent blocks
             protocol_time = time.time() - protocol_start
             results['relay'] = {
                 'status': 'success',

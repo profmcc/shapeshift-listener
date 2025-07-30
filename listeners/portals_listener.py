@@ -1,18 +1,23 @@
 #!/usr/bin/env python3
 """
-Portals Affiliate Fee Listener - Consolidated Version
-Collects Portals affiliate fee data from EVM chains for ShapeShift affiliate tracking.
+Fixed Portals Affiliate Fee Listener
+Properly detects Portals affiliate fees with correct affiliate address detection.
 """
 
 import os
 import sqlite3
 import time
 import json
-import requests
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 import logging
 from web3 import Web3
+from eth_abi import decode
+
+# Add shared directory to path
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from shared.token_name_resolver import TokenNameResolver
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -21,8 +26,11 @@ logger = logging.getLogger(__name__)
 class PortalsListener:
     def __init__(self, db_path: str = "databases/portals_transactions.db"):
         self.db_path = db_path
-        self.infura_api_key = os.getenv('INFURA_API_KEY', '208a3474635e4ebe8ee409cef3fbcd40')
+        self.alchemy_api_key = os.getenv('ALCHEMY_API_KEY')
         self.init_database()
+        
+        # Initialize token name resolver
+        self.token_resolver = TokenNameResolver()
         
         # ShapeShift affiliate addresses by chain
         self.shapeshift_affiliates = {
@@ -33,11 +41,11 @@ class PortalsListener:
             8453: "0x9c9aA90363630d4ab1D9dbF416cc3BBC8d3Ed502",    # Base
         }
         
-        # Chain configurations
+        # Chain configurations with Alchemy URLs
         self.chains = {
             'ethereum': {
                 'name': 'Ethereum',
-                'rpc_url': f'https://mainnet.infura.io/v3/{self.infura_api_key}',
+                'rpc_url': f'https://eth-mainnet.g.alchemy.com/v2/{self.alchemy_api_key}',
                 'chain_id': 1,
                 'portals_router': '0xbf5A7F3629fB325E2a8453D595AB103465F75E62',
                 'start_block': 22700000,
@@ -46,7 +54,7 @@ class PortalsListener:
             },
             'polygon': {
                 'name': 'Polygon', 
-                'rpc_url': f'https://polygon-mainnet.infura.io/v3/{self.infura_api_key}',
+                'rpc_url': f'https://polygon-mainnet.g.alchemy.com/v2/{self.alchemy_api_key}',
                 'chain_id': 137,
                 'portals_router': '0xbf5A7F3629fB325E2a8453D595AB103465F75E62',
                 'start_block': 45000000,
@@ -55,7 +63,7 @@ class PortalsListener:
             },
             'arbitrum': {
                 'name': 'Arbitrum',
-                'rpc_url': f'https://arbitrum-mainnet.infura.io/v3/{self.infura_api_key}',
+                'rpc_url': f'https://arb-mainnet.g.alchemy.com/v2/{self.alchemy_api_key}',
                 'chain_id': 42161,
                 'portals_router': '0xbf5A7F3629fB325E2a8453D595AB103465F75E62',
                 'start_block': 70000000,
@@ -64,7 +72,7 @@ class PortalsListener:
             },
             'optimism': {
                 'name': 'Optimism',
-                'rpc_url': f'https://optimism-mainnet.infura.io/v3/{self.infura_api_key}',
+                'rpc_url': f'https://opt-mainnet.g.alchemy.com/v2/{self.alchemy_api_key}',
                 'chain_id': 10,
                 'portals_router': '0xbf5A7F3629fB325E2a8453D595AB103465F75E62',
                 'start_block': 85000000,
@@ -73,7 +81,7 @@ class PortalsListener:
             },
             'base': {
                 'name': 'Base',
-                'rpc_url': f'https://base-mainnet.infura.io/v3/{self.infura_api_key}',
+                'rpc_url': f'https://base-mainnet.g.alchemy.com/v2/{self.alchemy_api_key}',
                 'chain_id': 8453,
                 'portals_router': '0xbf5A7F3629fB325E2a8453D595AB103465F75E62',
                 'start_block': 5000000,
@@ -128,6 +136,85 @@ class PortalsListener:
             logger.error(f"Error connecting to {chain_config['name']}: {e}")
             return None
 
+    def check_affiliate_involvement(self, receipt: Dict, affiliate_address: str) -> bool:
+        """Check if a transaction involves the ShapeShift affiliate address"""
+        # Remove 0x prefix and convert to lowercase for comparison
+        affiliate_clean = affiliate_address.lower().replace('0x', '')
+        
+        for log in receipt['logs']:
+            if log['topics']:
+                for topic in log['topics']:
+                    topic_hex = topic.hex().lower()
+                    # Check if the affiliate address (without 0x) is in the topic
+                    if affiliate_clean in topic_hex:
+                        return True
+        return False
+
+    def detect_portals_tokens(self, w3: Web3, receipt: Dict, chain_config: Dict) -> Dict:
+        """Detect input, output, and affiliate tokens in Portals transactions"""
+        result = {
+            'input_token': None,
+            'output_token': None,
+            'affiliate_token': None,
+            'input_amount': None,
+            'output_amount': None,
+            'affiliate_amount': None
+        }
+        
+        shapeshift_affiliate = self.shapeshift_affiliates.get(chain_config['chain_id'])
+        
+        # ERC-20 Transfer event signature
+        transfer_topic = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
+        
+        # Track all transfers
+        transfers = []
+        affiliate_transfers = []
+        
+        for log in receipt['logs']:
+            if not log['topics'] or len(log['topics']) < 3:
+                continue
+                
+            if log['topics'][0].hex() == transfer_topic:
+                from_addr = '0x' + log['topics'][1][-20:].hex()
+                to_addr = '0x' + log['topics'][2][-20:].hex()
+                
+                # Decode amount
+                amount = 0
+                if len(log['data']) >= 32:
+                    try:
+                        amount = int.from_bytes(log['data'][:32], 'big')
+                    except:
+                        pass
+                
+                transfer = {
+                    'token': log['address'],
+                    'from': from_addr,
+                    'to': to_addr,
+                    'amount': amount
+                }
+                transfers.append(transfer)
+                
+                # Check if this involves ShapeShift affiliate
+                if (from_addr.lower() == shapeshift_affiliate.lower() or 
+                    to_addr.lower() == shapeshift_affiliate.lower()):
+                    affiliate_transfers.append(transfer)
+        
+        # Determine input/output tokens based on transfer patterns
+        if len(transfers) >= 2:
+            # Usually the first transfer is input, last is output
+            result['input_token'] = transfers[0]['token']
+            result['input_amount'] = str(transfers[0]['amount'])
+            result['output_token'] = transfers[-1]['token']
+            result['output_amount'] = str(transfers[-1]['amount'])
+        
+        # Set affiliate token and amount
+        if affiliate_transfers:
+            affiliate_transfer = affiliate_transfers[0]  # Take the first affiliate transfer
+            result['affiliate_token'] = affiliate_transfer['token']
+            result['affiliate_amount'] = str(affiliate_transfer['amount'])
+        
+        return result
+
     def fetch_portals_events(self, chain_name: str, blocks_to_scan: int = 2000) -> List[Dict]:
         """Fetch Portals events for a specific chain"""
         chain_config = self.chains[chain_name]
@@ -142,9 +229,6 @@ class PortalsListener:
             
             logger.info(f"🔍 Scanning {chain_config['name']} blocks {start_block} to {latest_block}")
             
-            # Portal event signature
-            portal_topic = "0x9f69056fe2b57cf4ad9c5cdfd096e91b7b99ce05e44f6ed446ae6a3d6b5c0a1e"
-            
             events = []
             current_block = start_block
             chunk_size = chain_config['chunk_size']
@@ -153,11 +237,11 @@ class PortalsListener:
                 end_block = min(current_block + chunk_size - 1, latest_block)
                 
                 try:
+                    # Get all logs from Portals router (no topic filter to catch all events)
                     filter_params = {
                         'fromBlock': current_block,
                         'toBlock': end_block,
-                        'address': chain_config['portals_router'],
-                        'topics': [portal_topic]
+                        'address': chain_config['portals_router']
                     }
                     
                     logs = w3.eth.get_logs(filter_params)
@@ -167,26 +251,32 @@ class PortalsListener:
                         tx_receipt = w3.eth.get_transaction_receipt(log['transactionHash'])
                         shapeshift_affiliate = self.shapeshift_affiliates.get(chain_config['chain_id'])
                         
-                        if any(shapeshift_affiliate.lower() in str(topic).lower() for topic in log['topics']):
+                        # Use the improved affiliate detection
+                        affiliate_involved = self.check_affiliate_involvement(tx_receipt, shapeshift_affiliate)
+                        
+                        if affiliate_involved:
                             block = w3.eth.get_block(log['blockNumber'])
+                            
+                            # Detect tokens and amounts
+                            token_info = self.detect_portals_tokens(w3, tx_receipt, chain_config)
                             
                             event_data = {
                                 'chain': chain_config['name'],
                                 'tx_hash': log['transactionHash'].hex(),
                                 'block_number': log['blockNumber'],
                                 'block_timestamp': block['timestamp'],
-                                'input_token': None,
-                                'input_amount': None,
-                                'output_token': None,
-                                'output_amount': None,
+                                'input_token': token_info['input_token'],
+                                'input_amount': token_info['input_amount'],
+                                'output_token': token_info['output_token'],
+                                'output_amount': token_info['output_amount'],
                                 'sender': None,
                                 'broadcaster': None,
                                 'recipient': None,
                                 'partner': shapeshift_affiliate,
-                                'affiliate_token': None,
-                                'affiliate_amount': None,
-                                'affiliate_fee_usd': 0.0,
-                                'volume_usd': 0.0
+                                'affiliate_token': token_info['affiliate_token'],
+                                'affiliate_amount': token_info['affiliate_amount'],
+                                'affiliate_fee_usd': 0.0,  # Will be calculated later
+                                'volume_usd': 0.0  # Will be calculated later
                             }
                             
                             events.append(event_data)
@@ -233,6 +323,32 @@ class PortalsListener:
                     event['affiliate_token'], event['affiliate_amount'],
                     event['affiliate_fee_usd'], event['volume_usd']
                 ))
+                
+                # Add token names for new entries
+                if event['input_token']:
+                    input_token_name = self.token_resolver.get_token_name(event['input_token'], event['chain'])
+                    cursor.execute('''
+                        UPDATE portals_transactions 
+                        SET input_token_name = ? 
+                        WHERE tx_hash = ? AND chain = ? AND input_token = ?
+                    ''', (input_token_name, event['tx_hash'], event['chain'], event['input_token']))
+                
+                if event['output_token']:
+                    output_token_name = self.token_resolver.get_token_name(event['output_token'], event['chain'])
+                    cursor.execute('''
+                        UPDATE portals_transactions 
+                        SET output_token_name = ? 
+                        WHERE tx_hash = ? AND chain = ? AND output_token = ?
+                    ''', (output_token_name, event['tx_hash'], event['chain'], event['output_token']))
+                
+                if event['affiliate_token']:
+                    affiliate_token_name = self.token_resolver.get_token_name(event['affiliate_token'], event['chain'])
+                    cursor.execute('''
+                        UPDATE portals_transactions 
+                        SET affiliate_token_name = ? 
+                        WHERE tx_hash = ? AND chain = ? AND affiliate_token = ?
+                    ''', (affiliate_token_name, event['tx_hash'], event['chain'], event['affiliate_token']))
+                    
             except Exception as e:
                 logger.error(f"Error saving event {event['tx_hash']}: {e}")
                 

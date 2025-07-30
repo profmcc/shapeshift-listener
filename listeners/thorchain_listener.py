@@ -12,6 +12,11 @@ from typing import Dict, List, Optional
 import logging
 import os
 
+# Add shared directory to path
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from shared.token_name_resolver import TokenNameResolver
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -22,6 +27,9 @@ class THORChainListener:
         self.midgard_url = 'https://midgard.ninerealms.com'
         self.shapeshift_affiliate_ids = ['ss', 'thor1z8s0yk6q86nqwsc2gagv4n9yt9c0hk9qtszt0p']
         self.init_database()
+        
+        # Initialize token name resolver
+        self.token_resolver = TokenNameResolver()
 
     def init_database(self):
         """Initialize the THORChain affiliate fees database"""
@@ -177,33 +185,49 @@ class THORChainListener:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         
-        saved_count = 0
         for tx in transactions:
             try:
                 cursor.execute('''
                     INSERT OR IGNORE INTO thorchain_transactions 
                     (tx_id, date, height, from_address, to_address, affiliate_address,
                      affiliate_fee_basis_points, affiliate_fee_amount, affiliate_fee_usd,
-                     from_asset, to_asset, from_amount, to_amount, from_amount_usd, 
-                     to_amount_usd, volume_usd, swap_path, is_streaming_swap, 
+                     from_asset, to_asset, from_amount, to_amount, from_amount_usd,
+                     to_amount_usd, volume_usd, swap_path, is_streaming_swap,
                      liquidity_fee, swap_slip, timestamp)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
-                    tx['tx_id'], tx['date'], tx['height'], tx['from_address'], 
+                    tx['tx_id'], tx['date'], tx['height'], tx['from_address'],
                     tx['to_address'], tx['affiliate_address'], tx['affiliate_fee_basis_points'],
                     tx['affiliate_fee_amount'], tx['affiliate_fee_usd'], tx['from_asset'],
                     tx['to_asset'], tx['from_amount'], tx['to_amount'], tx['from_amount_usd'],
-                    tx['to_amount_usd'], tx['volume_usd'], tx['swap_path'],
-                    tx['is_streaming_swap'], tx['liquidity_fee'], tx['swap_slip'], tx['timestamp']
+                    tx['to_amount_usd'], tx['volume_usd'], tx['swap_path'], tx['is_streaming_swap'],
+                    tx['liquidity_fee'], tx['swap_slip'], tx['timestamp']
                 ))
-                saved_count += 1
+                
+                # Add token names for new entries
+                if tx['from_asset']:
+                    from_asset_name = self.token_resolver.get_token_name(tx['from_asset'], 'ethereum')
+                    cursor.execute('''
+                        UPDATE thorchain_transactions 
+                        SET from_asset_name = ? 
+                        WHERE tx_id = ? AND from_asset = ?
+                    ''', (from_asset_name, tx['tx_id'], tx['from_asset']))
+                
+                if tx['to_asset']:
+                    to_asset_name = self.token_resolver.get_token_name(tx['to_asset'], 'ethereum')
+                    cursor.execute('''
+                        UPDATE thorchain_transactions 
+                        SET to_asset_name = ? 
+                        WHERE tx_id = ? AND to_asset = ?
+                    ''', (to_asset_name, tx['tx_id'], tx['to_asset']))
+                    
             except Exception as e:
-                logger.error(f"❌ Error saving transaction {tx['tx_id']}: {e}")
+                logger.error(f"Error saving transaction {tx['tx_id']}: {e}")
                 
         conn.commit()
         conn.close()
         
-        logger.info(f"💾 Saved {saved_count} THORChain transactions to database")
+        logger.info(f"💾 Saved {len(transactions)} THORChain transactions to database")
 
     def get_database_stats(self):
         """Get database statistics"""
