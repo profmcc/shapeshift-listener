@@ -12,18 +12,20 @@ import logging
 from datetime import datetime
 from typing import Dict, List, Optional
 import argparse
+from web3 import Web3
 
 # Add current directory to path for imports
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Import all listeners
 try:
-    import relay_listener
+    from relay_listener import RelayListener
     from portals_listener import PortalsListener
     from thorchain_listener import THORChainListener
     from chainflip_listener import ChainflipBrokerListener
     from cowswap_listener_dune import CowSwapDuneListener
     from zerox_listener import ZeroXListener
+    from butterswap_listener import ButterSwapListener
 except ImportError as e:
     print(f"❌ Error importing listeners: {e}")
     print("Make sure all listener files are in the listeners/ directory")
@@ -40,11 +42,13 @@ class MasterRunner:
         
         # Initialize all listeners
         self.listeners = {
+            'relay': RelayListener(),
             'portals': PortalsListener(db_path="databases/portals_transactions.db"),
             'thorchain': THORChainListener(db_path="databases/thorchain_transactions.db"),
             'chainflip': ChainflipBrokerListener(),
             'cowswap': CowSwapDuneListener(db_path="databases/cowswap_transactions.db"),
             'zerox': ZeroXListener(db_path="databases/zerox_transactions.db"),
+            'butterswap': ButterSwapListener(db_path="databases/butterswap_transactions.db"),
         }
 
     def init_comprehensive_database(self):
@@ -98,34 +102,7 @@ class MasterRunner:
         results = {}
         start_time = time.time()
         
-        # Run relay listener first (module-based)
-        logger.info(f"\n{'='*60}")
-        logger.info(f"🔍 Running RELAY listener...")
-        logger.info(f"{'='*60}")
-        
-        try:
-            protocol_start = time.time()
-            # Use the relay listener directly with scan_chain method
-            from relay_listener import RelayListener
-            relay_listener = RelayListener()
-            fee_count = relay_listener.scan_chain('base', None, None)  # Scan recent blocks
-            protocol_time = time.time() - protocol_start
-            results['relay'] = {
-                'status': 'success',
-                'time': protocol_time,
-                'error': None
-            }
-            logger.info(f"✅ RELAY completed in {protocol_time:.2f}s")
-        except Exception as e:
-            protocol_time = time.time() - protocol_start
-            results['relay'] = {
-                'status': 'error',
-                'time': protocol_time,
-                'error': str(e)
-            }
-            logger.error(f"❌ RELAY failed: {e}")
-        
-        # Run class-based listeners
+        # Run all listeners
         for protocol, listener in self.listeners.items():
             logger.info(f"\n{'='*60}")
             logger.info(f"🔍 Running {protocol.upper()} listener...")
@@ -134,12 +111,26 @@ class MasterRunner:
             try:
                 protocol_start = time.time()
                 
-                if protocol in ['thorchain', 'chainflip']:
+                logger.info(f"--- Starting {protocol.upper()} listener ---")
+                
+                if protocol == 'relay':
+                    # Relay listener scans a specific chain
+                    chain_config = listener._get_chain_config('base')
+                    if chain_config:
+                        w3 = Web3(Web3.HTTPProvider(chain_config['rpc_url']))
+                        end_block = w3.eth.block_number
+                        start_block = end_block - blocks_to_scan
+                        listener.scan_chain('base', start_block, end_block)
+                    else:
+                        logger.error("Could not find 'base' chain config for Relay listener.")
+                elif protocol in ['thorchain', 'chainflip']:
                     # API-based listeners use limit
                     listener.run_listener(limit)
                 else:
                     # Blockchain listeners use blocks_to_scan
                     listener.run_listener(blocks_to_scan)
+                
+                logger.info(f"--- Finished {protocol.upper()} listener ---")
                 
                 protocol_time = time.time() - protocol_start
                 results[protocol] = {
@@ -200,6 +191,11 @@ class MasterRunner:
                 'source_db': 'databases/zerox_transactions.db',
                 'source_table': 'zerox_transactions',
                 'protocol': '0x Protocol'
+            },
+            'butterswap': {
+                'source_db': 'databases/butterswap_transactions.db',
+                'source_table': 'butterswap_transactions',
+                'protocol': 'ButterSwap'
             }
         }
         

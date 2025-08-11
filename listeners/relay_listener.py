@@ -22,8 +22,7 @@ from dotenv import load_dotenv
 # Add shared directory to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from shared.custom_logging import setup_logger, get_logger
-from shared.block_tracker import get_start_block, set_last_processed_block, init_database as init_block_tracker
-from shared.token_name_resolver import TokenNameResolver
+from shared.block_tracker import BlockTracker
 
 load_dotenv()
 setup_logger("relay_listener")
@@ -35,8 +34,8 @@ class RelayListener:
         self.config = self._load_config(config_path)
         self._init_database()
         
-        # Initialize token name resolver
-        self.token_resolver = TokenNameResolver()
+        # Initialize block tracker
+        self.block_tracker = BlockTracker()
         
         # Load the ABI
         with open("shared/abis/relay/ERC20Router.json", "r") as f:
@@ -113,6 +112,18 @@ class RelayListener:
             )
         ''')
         
+        # Add new columns for trading pair analysis if they don't exist
+        try:
+            cursor.execute('ALTER TABLE relay_affiliate_fees ADD COLUMN from_token TEXT')
+            cursor.execute('ALTER TABLE relay_affiliate_fees ADD COLUMN to_token TEXT')
+            cursor.execute('ALTER TABLE relay_affiliate_fees ADD COLUMN from_amount TEXT')
+            cursor.execute('ALTER TABLE relay_affiliate_fees ADD COLUMN to_amount TEXT')
+            cursor.execute('ALTER TABLE relay_affiliate_fees ADD COLUMN volume_usd REAL')
+            cursor.execute('ALTER TABLE relay_affiliate_fees ADD COLUMN affiliate_fee_usd REAL')
+        except sqlite3.OperationalError:
+            # Columns already exist
+            pass
+            
         # Create relay_claiming_transactions table for tracking actual fee payouts
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS relay_claiming_transactions (
@@ -158,19 +169,6 @@ class RelayListener:
                 (tx_hash, log_index, chain, block_number, timestamp, event_type, affiliate_address, amount, token_address, solver_call_data)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', fees)
-            
-            # Add token names for new entries
-            for fee in fees:
-                tx_hash, log_index, chain, block_number, timestamp, event_type, affiliate_address, amount, token_address, solver_call_data = fee
-                
-                if token_address and token_address != '0x0000000000000000000000000000000000000000':
-                    token_name = self.token_resolver.get_token_name(token_address, chain)
-                    
-                    cursor.execute('''
-                        UPDATE relay_affiliate_fees 
-                        SET token_address_name = ? 
-                        WHERE tx_hash = ? AND log_index = ? AND token_address = ?
-                    ''', (token_name, tx_hash, log_index, token_address))
             
             conn.commit()
             logger.info(f"💾 Saved {len(fees)} Relay affiliate fees to database")
@@ -414,125 +412,130 @@ class RelayListener:
         
         return token_address
 
+    def _extract_trading_pair(self, w3: Web3, receipt: Dict) -> Dict:
+        """Extract trading pair from transaction receipt by analyzing ERC20 transfers."""
+        transfers = {}
+        
+        for log in receipt['logs']:
+            if (log.get('topics') and len(log['topics']) == 3 and
+                    log['topics'][0].hex() == '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'):
+                
+                token_address = log['address']
+                from_address = '0x' + log['topics'][1].hex()[-40:]
+                to_address = '0x' + log['topics'][2].hex()[-40:]
+                amount = int.from_bytes(log['data'], 'big')
+
+                if token_address not in transfers:
+                    transfers[token_address] = {'in': 0, 'out': 0}
+                
+                transfers[token_address]['out'] += amount
+                transfers[token_address]['in'] += amount
+
+        # Identify from/to tokens based on net balance change
+        from_token, to_token = None, None
+        from_amount, to_amount = 0, 0
+
+        # Simple heuristic: largest outflow is 'from', largest inflow is 'to'
+        sorted_by_outflow = sorted(transfers.items(), key=lambda item: item[1]['out'], reverse=True)
+        sorted_by_inflow = sorted(transfers.items(), key=lambda item: item[1]['in'], reverse=True)
+
+        if sorted_by_outflow:
+            from_token = sorted_by_outflow[0][0]
+            from_amount = sorted_by_outflow[0][1]['out']
+
+        if sorted_by_inflow:
+            to_token = sorted_by_inflow[0][0]
+            to_amount = sorted_by_inflow[0][1]['in']
+            
+        return {
+            'from_token': from_token,
+            'to_token': to_token,
+            'from_amount': str(from_amount),
+            'to_amount': str(to_amount)
+        }
+
     def _process_transaction(self, w3: Web3, tx_hash: str, chain_name: str) -> List[Tuple]:
-        """Process a single transaction for affiliate fee events"""
+        """
+        Processes a single transaction to find and record affiliate fees
+        paid to the ShapeShift affiliate address. It directly looks for
+        transfers to the affiliate address rather than parsing call data.
+        """
         fees = []
-        
-        max_retries = 3
-        retry_delay = 1
-        
-        for attempt in range(max_retries):
-            try:
-                receipt = w3.eth.get_transaction_receipt(tx_hash)
-                block = w3.eth.get_block(receipt['blockNumber'])
-                timestamp = block['timestamp']
-                
-                # Process each log for SolverCallExecuted and SolverNativeTransfer events
-                for log_index, log in enumerate(receipt['logs']):
-                    if not log['topics']:
-                        continue
+        try:
+            receipt = w3.eth.get_transaction_receipt(tx_hash)
+            if not receipt:
+                logger.warning(f"Could not get receipt for tx {tx_hash} on {chain_name}")
+                return []
+
+            block = w3.eth.get_block(receipt['blockNumber'])
+            timestamp = block['timestamp']
+            
+            # Extract trading pair
+            pair_info = self._extract_trading_pair(w3, receipt)
+
+            # 1. Check for ERC-20 token transfers to the affiliate address
+            for idx, log in enumerate(receipt['logs']):
+                # Check for standard ERC-20 Transfer event signature and correct number of topics
+                if (log.get('topics') and
+                        len(log['topics']) == 3 and
+                        log['topics'][0].hex() == '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'):
                     
-                    topic0 = log['topics'][0].hex()
+                    to_address = '0x' + log['topics'][2].hex()[-40:]
                     
-                    # Look for SolverCallExecuted events
-                    if topic0 == '93485dcd31a905e3ffd7b012abe3438fa8fa77f98ddc9f50e879d3fa7ccdc324':
-                        if len(log['data']) >= 96:
-                            to_address = '0x' + log['data'][:32][-20:].hex()
-                            data_offset = int.from_bytes(log['data'][32:64], 'big')
-                            amount = int.from_bytes(log['data'][64:96], 'big')
-                            
-                            # Parse the solver call data to extract affiliate fees
-                            if data_offset > 0 and len(log['data']) > data_offset:
-                                call_data = log['data'][data_offset:]
-                                affiliate_fees = self._parse_solver_call_data_for_fees(call_data)
-                                
-                                for fee_gwei in affiliate_fees:
-                                    logger.info(f"Found affiliate fee in {tx_hash}: {fee_gwei} gwei")
-                                    
-                                    # Detect the token involved
-                                    token_address = self._detect_affiliate_token(w3, receipt, fee_gwei)
-                                    
-                                    # Save the affiliate fee
-                                    fees.append((
-                                        tx_hash,
-                                        log_index,
-                                        chain_name,
-                                        receipt['blockNumber'],
-                                        timestamp,
-                                        'SolverCallExecuted',
-                                        self.affiliate_address,
-                                        str(fee_gwei),
-                                        token_address,
-                                        f"Affiliate fee: {fee_gwei} gwei"
-                                    ))
-                    
-                    # Look for SolverNativeTransfer events
-                    elif topic0 == 'd35467972d1fda5b63c735f59d3974fa51785a41a92aa3ed1b70832836f8dba6':
-                        if len(log['data']) >= 64:
-                            to_address = '0x' + log['data'][:32][-20:].hex()
-                            amount = int.from_bytes(log['data'][32:64], 'big')
-                            
-                            # Check if this transfer is to the affiliate address
-                            if to_address.lower() == self.affiliate_address.lower() and amount > 0:
-                                logger.info(f"Found native affiliate fee in {tx_hash}: {amount} gwei")
-                                
-                                fees.append((
-                                    tx_hash,
-                                    log_index,
-                                    chain_name,
-                                    receipt['blockNumber'],
-                                    timestamp,
-                                    'SolverNativeTransfer',
-                                    self.affiliate_address,
-                                    str(amount),
-                                    '0x0000000000000000000000000000000000000000',  # Native token
-                                    f"Native affiliate fee: {amount} gwei"
-                                ))
-                
-                # Also check for direct ERC-20 transfers to the affiliate address
-                for log_index, log in enumerate(receipt['logs']):
-                    if not log['topics'] or len(log['topics']) < 3:
-                        continue
-                    
-                    # ERC-20 Transfer event
-                    if log['topics'][0].hex() == 'ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef':
-                        from_addr = '0x' + log['topics'][1][-20:].hex()
-                        to_addr = '0x' + log['topics'][2][-20:].hex()
+                    if to_address.lower() == self.affiliate_address.lower():
+                        token_address = log['address']
+                        amount = str(int.from_bytes(log['data'], 'big'))
+                        log_index = log.get('logIndex', idx)
                         
-                        # Check if this is a transfer to the affiliate address
-                        if to_addr.lower() == self.affiliate_address.lower() and len(log['data']) >= 32:
-                            try:
-                                amount = int.from_bytes(log['data'][:32], 'big')
-                                if amount > 0:
-                                    logger.info(f"Found ERC-20 affiliate fee in {tx_hash}: {amount} tokens")
-                                    
-                                    fees.append((
-                                        tx_hash,
-                                        log_index,
-                                        chain_name,
-                                        receipt['blockNumber'],
-                                        timestamp,
-                                        'ERC20Transfer',
-                                        self.affiliate_address,
-                                        str(amount),
-                                        log['address'],  # Token address
-                                        f"ERC-20 affiliate fee: {amount} tokens"
-                                    ))
-                            except:
-                                pass
+                        fee_data = (
+                            tx_hash,
+                            log_index,
+                            chain_name,
+                            receipt['blockNumber'],
+                            timestamp,
+                            'ERC20AffiliateFee',
+                            self.affiliate_address,
+                            amount,
+                            token_address,
+                            '',  # No solver call data
+                            pair_info['from_token'],
+                            pair_info['to_token'],
+                            pair_info['from_amount'],
+                            pair_info['to_amount']
+                        )
+                        fees.append(fee_data)
+                        logger.info(f"Found ERC-20 affiliate fee in {tx_hash}: {amount} of {token_address}")
+
+            # 2. Check for native currency transfer to the affiliate address
+            tx = w3.eth.get_transaction(tx_hash)
+            if tx and tx.get('to') and tx['to'].lower() == self.affiliate_address.lower() and tx.get('value', 0) > 0:
+                amount = str(tx['value'])
+                token_address = '0x0000000000000000000000000000000000000000'
                 
-                return fees
-                
-            except Exception as e:
-                if attempt < max_retries - 1:
-                    logger.warning(f"Attempt {attempt + 1} failed for transaction {tx_hash}: {e}")
-                    time.sleep(retry_delay)
-                    retry_delay *= 2  # Exponential backoff
-                else:
-                    logger.error(f"Failed to process transaction {tx_hash} after {max_retries} attempts: {e}")
-                    return []
-        
-        return []
+                # Use a fake log_index for uniqueness (-1 for native transfer)
+                fee_data = (
+                    tx_hash,
+                    -1,
+                    chain_name,
+                    receipt['blockNumber'],
+                    timestamp,
+                    'NativeAffiliateFee',
+                    self.affiliate_address,
+                    amount,
+                    token_address,
+                    '',
+                    pair_info['from_token'],
+                    pair_info['to_token'],
+                    pair_info['from_amount'],
+                    pair_info['to_amount']
+                )
+                fees.append(fee_data)
+                logger.info(f"Found native affiliate fee in {tx_hash}: {amount} wei")
+
+        except (KeyError, TypeError, ValueError) as e:
+            logger.error(f"Error processing transaction {tx_hash} on {chain_name}: {e}")
+
+        return fees
 
     def _decode_transfer_data(self, data: bytes) -> Tuple[str, int]:
         """Decode transfer data to extract token address and amount"""
@@ -558,136 +561,54 @@ class RelayListener:
         
         return None, None
     
-    def _scan_chain_blocks(self, chain_name: str, start_block: int, end_block: int, 
-                          router_addresses: List[str]) -> List[Tuple]:
-        """Scan blocks for SolverCallExecuted and SolverNativeTransfer events"""
-        # Connect to RPC
-        chain_config = self._get_chain_config(chain_name)
-        if not chain_config:
-            logger.error(f"Chain {chain_name} not found in configuration")
-            return []
-        
-        w3 = Web3(Web3.HTTPProvider(chain_config['rpc_url']))
-        logger.info(f"Connecting to {chain_name} RPC: {chain_config['rpc_url'][:50]}...")
-        if not w3.is_connected():
-            logger.error(f"Failed to connect to {chain_name} RPC")
-            return []
-        logger.info(f"Successfully connected to {chain_name} RPC")
-        
-        fees = []
-        current_block = start_block
-        
-        # Get event topics for filtering
-        solver_call_executed_topic = None
-        solver_native_transfer_topic = None
-        
-        for topic, event_abi in self.event_signatures.items():
-            if event_abi['name'] == 'SolverCallExecuted':
-                solver_call_executed_topic = '0x' + topic if not topic.startswith('0x') else topic
-            elif event_abi['name'] == 'SolverNativeTransfer':
-                solver_native_transfer_topic = '0x' + topic if not topic.startswith('0x') else topic
-        
-        if not solver_call_executed_topic and not solver_native_transfer_topic:
-            logger.error("Could not find SolverCallExecuted or SolverNativeTransfer event signatures")
-            return fees
-        
-        while current_block <= end_block:
-            batch_size = min(50, end_block - current_block + 1)  # Further reduced batch size
-            batch_end = current_block + batch_size - 1
-            
-            print(f"Processing blocks {current_block}-{batch_end}...") # Added debug print
-            
-            for router_address in router_addresses:
-                try:
-                    # Ensure router_address is a proper checksum hex string
-                    if isinstance(router_address, int):
-                        router_address = hex(router_address)
-                    elif not router_address.startswith('0x'):
-                        router_address = '0x' + router_address
-                    
-                    # Convert to checksum address
-                    router_address = w3.to_checksum_address(router_address)
-                    
-                    # Filter for SolverCallExecuted events
-                    if solver_call_executed_topic:
-                        filter_params = {
-                            'fromBlock': current_block,
-                            'toBlock': batch_end,
-                            'address': router_address,
-                            'topics': [solver_call_executed_topic]
-                        }
-                        logs = w3.eth.get_logs(filter_params)
-                        print(f"Found {len(logs)} SolverCallExecuted logs for {router_address}") # Added debug print
-                        logger.info(f"Found {len(logs)} SolverCallExecuted logs for {router_address}")
-                        
-                        # Process each log
-                        for log in logs:
-                            tx_hash = log['transactionHash'].hex()
-                            fees.extend(self._process_transaction(w3, tx_hash, chain_name))
-                    
-                    # Filter for SolverNativeTransfer events
-                    if solver_native_transfer_topic:
-                        filter_params = {
-                            'fromBlock': current_block,
-                            'toBlock': batch_end,
-                            'address': router_address,
-                            'topics': [solver_native_transfer_topic]
-                        }
-                        logs = w3.eth.get_logs(filter_params)
-                        print(f"Found {len(logs)} SolverNativeTransfer logs for {router_address}") # Added debug print
-                        logger.info(f"Found {len(logs)} SolverNativeTransfer logs for {router_address}")
-                        
-                        # Process each log
-                        for log in logs:
-                            tx_hash = log['transactionHash'].hex()
-                            fees.extend(self._process_transaction(w3, tx_hash, chain_name))
-                            
-                except Exception as e:
-                    print(f"Error getting logs for {router_address} on {chain_name}: {e}") # Added debug print
-                    logger.error(f"Error getting logs for {router_address} on {chain_name}: {e}")
-                    time.sleep(1)  # Add delay on error
-                    continue
-            
-            current_block = batch_end + 1
-            logger.info(f"Processed {chain_name} blocks {current_block-batch_size}-{batch_end}")
-            time.sleep(0.1)  # Add small delay between batches
-            
-        return fees
-    
     def scan_chain(self, chain_name: str, start_block: Optional[int] = None, 
                   end_block: Optional[int] = None) -> int:
-        """Scan a specific chain for affiliate fees"""
-        print(f"Starting scan for {chain_name}...")
-        
+        """Scan a specific chain for affiliate fee events by iterating through blocks."""
         chain_config = self._get_chain_config(chain_name)
         if not chain_config:
-            print(f"Chain {chain_name} not found in configuration")
+            logger.error(f"Chain config not found for {chain_name}")
             return 0
-        
+
+        w3 = Web3(Web3.HTTPProvider(chain_config['rpc_url']))
+        if not w3.is_connected():
+            logger.error(f"Failed to connect to {chain_name} RPC")
+            return 0
+            
         if start_block is None:
-            start_block = chain_config['start_block']
+            start_block = self.block_tracker.get_last_scanned_block(
+                'relay', chain_name, chain_config['start_block']
+            )
         if end_block is None:
-            end_block = start_block + 1000  # Default to 1000 blocks
-        
-        print(f"Scanning {chain_name} from block {start_block} to {end_block}")
-        print(f"Total blocks to scan: {end_block - start_block + 1}")
+            end_block = w3.eth.block_number
+
         logger.info(f"Scanning {chain_name} from block {start_block} to {end_block}")
-        logger.info(f"Router addresses: {chain_config['router_addresses']}")
         
-        fees = self._scan_chain_blocks(
-            chain_name, 
-            start_block, 
-            end_block, 
-            chain_config['router_addresses']
-        )
+        all_fees = []
         
-        if fees:
-            self._save_affiliate_fees(fees)
-        
-        print(f"Found {len(fees)} affiliate fee events on {chain_name}")
-        logger.info(f"Found {len(fees)} affiliate fee events on {chain_name}")
-        return len(fees)
-    
+        for block_num in range(start_block, end_block + 1):
+            try:
+                if block_num % 50 == 0:
+                     logger.info(f"Scanning block {block_num} on {chain_name}...")
+                block = w3.eth.get_block(block_num, full_transactions=True)
+                for tx in block.get('transactions', []):
+                    tx_hash = tx['hash'].hex()
+                    fees = self._process_transaction(w3, tx_hash, chain_name)
+                    if fees:
+                        all_fees.extend(fees)
+            except Exception as e:
+                logger.error(f"Error processing block {block_num} on {chain_name}: {e}")
+                time.sleep(1) # Add a small delay on error
+                continue
+
+        if all_fees:
+            self._save_affiliate_fees(all_fees)
+            
+        # Update last scanned block
+        self.block_tracker.update_last_scanned_block('relay', chain_name, end_block)
+            
+        logger.info(f"Found {len(all_fees)} affiliate fee events on {chain_name}")
+        return len(all_fees)
+
     def get_stats(self) -> Dict:
         """Get database statistics"""
         conn = sqlite3.connect(self.config['db']['path'])

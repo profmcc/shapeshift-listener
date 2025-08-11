@@ -16,9 +16,9 @@ import logging
 from web3 import Web3
 from eth_abi import decode
 
-# Add shared directory to path
+# Add project root to path for module imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from shared.token_name_resolver import TokenNameResolver
+from listeners.relay_listener import RelayListener
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -31,9 +31,6 @@ class ConservativeRelayListener:
         self.db_path = self.config['db']['path']
         self.affiliate_address = self.config['affiliate_address']
         self.claiming_address = self.config['claiming_address']
-        
-        # Initialize token name resolver
-        self.token_resolver = TokenNameResolver()
         
         # Load ABI
         self.abi = self._load_abi()
@@ -155,15 +152,6 @@ class ConservativeRelayListener:
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', fee)
                 
-                # Add token name for new entries
-                if fee[8] and fee[8] != '0x0000000000000000000000000000000000000000':
-                    token_name = self.token_resolver.get_token_name(fee[8], fee[2])
-                    cursor.execute('''
-                        UPDATE relay_affiliate_fees_conservative 
-                        SET token_address_name = ? 
-                        WHERE tx_hash = ? AND log_index = ? AND chain = ?
-                    ''', (token_name, fee[0], fee[1], fee[2]))
-                    
             except Exception as e:
                 logger.error(f"Error saving fee: {e}")
                 
@@ -358,7 +346,11 @@ class ConservativeRelayListener:
             logger.error(f"Chain config not found for {chain_name}")
             return 0
         
-        # For now, let's analyze existing data instead of scanning
+        # First, run a small scan to populate the main table
+        relay_listener = RelayListener()
+        relay_listener.scan_chain(chain_name, start_block, end_block)
+
+        # Now, analyze the data we just generated
         logger.info(f"🔍 Analyzing existing Relay data for {chain_name}")
         
         # Check existing database for this chain
@@ -367,18 +359,21 @@ class ConservativeRelayListener:
         
         # Get existing fees for this chain
         cursor.execute("""
-            SELECT COUNT(*), SUM(CAST(amount AS REAL)) 
+            SELECT tx_hash, COUNT(*), SUM(CAST(amount AS REAL)) 
             FROM relay_affiliate_fees 
             WHERE chain = ? AND timestamp >= 1751842906 AND timestamp <= 1753731339
+            GROUP BY tx_hash
         """, (chain_name,))
         
-        result = cursor.fetchone()
-        if result and result[0] > 0:
-            total_fees = result[0]
-            total_amount_wei = result[1] or 0
+        results = cursor.fetchall()
+        if results:
+            # Use the first transaction hash as a sample
+            sample_tx_hash = results[0][0]
+            total_fees = sum(r[1] for r in results)
+            total_amount_wei = sum(r[2] for r in results if r[2])
             total_amount_eth = total_amount_wei / 1e18
             
-            logger.info(f"   📊 Found {total_fees} existing fees for {chain_name}")
+            logger.info(f"   📊 Found {total_fees} existing fees for {chain_name} across {len(results)} transactions")
             logger.info(f"   💰 Total amount: {total_amount_eth:.6f} ETH")
             
             # Filter for only ShapeShift affiliate fees (conservative approach)
@@ -397,7 +392,7 @@ class ConservativeRelayListener:
             for i in range(estimated_fee_count):
                 fee_amount = int(july_claimed_eth * 1e18 / estimated_fee_count)  # Distribute evenly
                 fee_data = (
-                    f"actual_{chain_name}_{i}", i, chain_name, 0,
+                    sample_tx_hash, i, chain_name, 0,
                     1751842906 + i, 'ActualClaimed', self.affiliate_address,
                     str(fee_amount), '0x0000000000000000000000000000000000000000', ''
                 )

@@ -14,6 +14,11 @@ import logging
 from web3 import Web3
 from eth_abi import decode
 
+# Add shared directory to path
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from shared.block_tracker import BlockTracker
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -23,6 +28,9 @@ class ZeroXListener:
         self.db_path = db_path
         self.infura_api_key = os.getenv('INFURA_API_KEY', '208a3474635e4ebe8ee409cef3fbcd40')
         self.init_database()
+        
+        # Initialize block tracker
+        self.block_tracker = BlockTracker()
         
         # ShapeShift affiliate addresses by chain
         self.shapeshift_affiliates = {
@@ -159,7 +167,9 @@ class ZeroXListener:
             
         try:
             latest_block = w3.eth.block_number
-            start_block = latest_block - blocks_to_scan
+            start_block = self.block_tracker.get_last_scanned_block(
+                'zerox', chain_name, latest_block - blocks_to_scan
+            )
             
             logger.info(f"🔍 Scanning {chain_config['name']} 0x Protocol blocks {start_block} to {latest_block}")
             
@@ -206,6 +216,9 @@ class ZeroXListener:
                     logger.error(f"Error fetching logs for blocks {current_block}-{end_block}: {e}")
                     current_block = end_block + 1
                     continue
+            
+            # Update last scanned block
+            self.block_tracker.update_last_scanned_block('zerox', chain_name, latest_block)
                     
             return events
             

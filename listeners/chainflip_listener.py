@@ -17,7 +17,7 @@ import os
 
 # Add shared directory to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from shared.token_name_resolver import TokenNameResolver
+from shared.price_cache import PriceCache
 
 # Import existing Chainflip scraper if available
 try:
@@ -50,8 +50,11 @@ class ChainflipBrokerListener:
         self.db_path = "databases/chainflip_transactions.db"
         self.init_database()
         
-        # Initialize token name resolver
-        self.token_resolver = TokenNameResolver()
+        # Initialize price cache
+        api_key = os.getenv('COINMARKETCAP_API_KEY')
+        if not api_key:
+            raise ValueError("COINMARKETCAP_API_KEY environment variable not set")
+        self.price_cache = PriceCache(api_key)
     
     def init_database(self):
         """Initialize the database with Chainflip transactions table"""
@@ -83,10 +86,20 @@ class ChainflipBrokerListener:
                 source_asset_name TEXT,
                 destination_asset_name TEXT,
                 broker_fee_asset_name TEXT,
+                broker_fee_usd REAL,
+                volume_usd REAL,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP
             )
         """)
         
+        # Add new columns if they don't exist
+        try:
+            cursor.execute('ALTER TABLE chainflip_transactions ADD COLUMN broker_fee_usd REAL')
+            cursor.execute('ALTER TABLE chainflip_transactions ADD COLUMN volume_usd REAL')
+        except sqlite3.OperationalError:
+            # Columns already exist
+            pass
+            
         # Create index for faster queries
         cursor.execute("""
             CREATE INDEX IF NOT EXISTS idx_broker_address 
@@ -102,7 +115,7 @@ class ChainflipBrokerListener:
         conn.close()
         print("📁 Database initialized: databases/chainflip_transactions.db")
     
-    async def scrape_broker_data(self, broker: Dict[str, str]) -> List[Dict]:
+    async def scrape_broker_data(self, broker: Dict[str, str], prices: Dict[str, float]) -> List[Dict]:
         """Scrape data from a specific broker using the comprehensive scraper"""
         transactions = []
         
@@ -126,15 +139,18 @@ class ChainflipBrokerListener:
                     tx['broker_name'] = broker['name']
                     tx['scraped_at'] = datetime.now().isoformat()
                     
-                    # Add token names
-                    if tx.get('source_asset'):
-                        tx['source_asset_name'] = self.token_resolver.get_token_name(tx['source_asset'], 'chainflip')
+                    # Calculate USD values
+                    from_asset_name = tx.get('source_asset', '')
+                    broker_fee_asset_name = tx.get('broker_fee_asset', '')
                     
-                    if tx.get('destination_asset'):
-                        tx['destination_asset_name'] = self.token_resolver.get_token_name(tx['destination_asset'], 'chainflip')
+                    from_price = prices.get(from_asset_name, 0)
+                    fee_price = prices.get(broker_fee_asset_name, 0)
                     
-                    if tx.get('broker_fee_asset'):
-                        tx['broker_fee_asset_name'] = self.token_resolver.get_token_name(tx['broker_fee_asset'], 'chainflip')
+                    from_amount = float(tx.get('swap_amount', 0))
+                    fee_amount = float(tx.get('broker_fee_amount', 0))
+                    
+                    tx['volume_usd'] = from_amount * from_price
+                    tx['broker_fee_usd'] = fee_amount * fee_price
                     
                     transactions.append(tx)
                 
@@ -163,8 +179,8 @@ class ChainflipBrokerListener:
                      destination_asset, swap_amount, output_amount, broker_fee_amount, 
                      broker_fee_asset, source_chain, destination_chain, transaction_hash, 
                      block_number, swap_state, timestamp, scraped_at, raw_data,
-                     source_asset_name, destination_asset_name, broker_fee_asset_name)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     broker_fee_usd, volume_usd)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     tx.get('transaction_id'),
                     tx.get('broker_address'),
@@ -184,9 +200,8 @@ class ChainflipBrokerListener:
                     tx.get('timestamp'),
                     tx.get('scraped_at'),
                     json.dumps(tx.get('raw_data', {})),
-                    tx.get('source_asset_name'),
-                    tx.get('destination_asset_name'),
-                    tx.get('broker_fee_asset_name')
+                    tx.get('broker_fee_usd'),
+                    tx.get('volume_usd')
                 ))
                 
             except Exception as e:
@@ -243,11 +258,14 @@ class ChainflipBrokerListener:
         """Main listener function"""
         print("🚀 Starting Chainflip broker listener...")
         
+        # Get latest prices
+        prices = self.price_cache.get_prices()
+        
         all_transactions = []
         
         for broker in self.shapeshift_brokers:
             print(f"\n🔍 Processing {broker['name']}...")
-            transactions = await self.scrape_broker_data(broker)
+            transactions = await self.scrape_broker_data(broker, prices)
             all_transactions.extend(transactions)
         
         if all_transactions:
@@ -283,14 +301,36 @@ class ChainflipBrokerListener:
         
         self.save_transactions_to_db(fallback_transactions)
         print("📝 Created fallback test data")
+        return fallback_transactions
     
     def run_listener(self, limit: int = 100):
         """Run the Chainflip listener (compatible with master runner)"""
         print("🚀 Starting Chainflip broker listener...")
         
+        # Always get prices
+        prices = self.price_cache.get_prices()
+        
         if not SCRAPER_AVAILABLE:
-            print("⚠️  Chainflip scraper not available, creating fallback data")
-            self.create_fallback_data()
+            print("⚠️  Chainflip scraper not available, using fallback data")
+            fallback_data = self.create_fallback_data()
+            
+            # Process fallback data to calculate USD values
+            processed_fallback = []
+            for tx in fallback_data:
+                from_asset_name = tx.get('source_asset', '')
+                broker_fee_asset_name = tx.get('broker_fee_asset', '')
+                
+                from_price = prices.get(from_asset_name, 0)
+                fee_price = prices.get(broker_fee_asset_name, 0)
+                
+                from_amount = float(tx.get('swap_amount', 0))
+                fee_amount = float(tx.get('broker_fee_amount', 0))
+                
+                tx['volume_usd'] = from_amount * from_price
+                tx['broker_fee_usd'] = fee_amount * fee_price
+                processed_fallback.append(tx)
+
+            self.save_transactions_to_db(processed_fallback)
         else:
             asyncio.run(self.listen_for_transactions())
         

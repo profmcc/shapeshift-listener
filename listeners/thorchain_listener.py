@@ -15,7 +15,6 @@ import os
 # Add shared directory to path
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from shared.token_name_resolver import TokenNameResolver
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -28,9 +27,6 @@ class THORChainListener:
         self.shapeshift_affiliate_ids = ['ss', 'thor1z8s0yk6q86nqwsc2gagv4n9yt9c0hk9qtszt0p']
         self.init_database()
         
-        # Initialize token name resolver
-        self.token_resolver = TokenNameResolver()
-
     def init_database(self):
         """Initialize the THORChain affiliate fees database"""
         os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
@@ -111,7 +107,11 @@ class THORChainListener:
             tx_id = action.get('txID', '')
             height = action.get('height', 0)
             date = action.get('date', '')
-            timestamp = int(datetime.fromisoformat(date.replace('Z', '+00:00')).timestamp()) if date else 0
+            try:
+                timestamp = int(datetime.fromisoformat(date.replace('Z', '+00:00')).timestamp()) if date else 0
+            except ValueError:
+                logger.error(f"Error parsing date: {date}")
+                timestamp = 0
             
             # Extract asset information
             from_asset = None
@@ -121,8 +121,8 @@ class THORChainListener:
             
             # Get first and last pools to determine from/to assets
             if pools:
-                from_asset = pools[0].get('asset', '')
-                to_asset = pools[-1].get('asset', '')
+                from_asset = pools[0]
+                to_asset = pools[-1]
                 
             # Extract amounts from inputs/outputs
             inputs = action.get('in', [])
@@ -164,7 +164,7 @@ class THORChainListener:
                 'from_amount_usd': 0.0,  # Will be calculated with price data
                 'to_amount_usd': 0.0,    # Will be calculated with price data
                 'volume_usd': 0.0,       # Will be calculated as max(from_usd, to_usd)
-                'swap_path': ' -> '.join([pool.get('asset', '') for pool in pools]),
+                'swap_path': ' -> '.join(pools),
                 'is_streaming_swap': swap_data.get('streamingSwap', {}).get('quantity', 0) > 1,
                 'liquidity_fee': liquidity_fee,
                 'swap_slip': swap_slip
@@ -175,6 +175,7 @@ class THORChainListener:
             
         except Exception as e:
             logger.error(f"❌ Error processing THORChain action: {e}")
+            logger.error(f"   Problematic action: {action}")
             return None
 
     def save_transactions_to_db(self, transactions: List[Dict]):
@@ -204,23 +205,6 @@ class THORChainListener:
                     tx['liquidity_fee'], tx['swap_slip'], tx['timestamp']
                 ))
                 
-                # Add token names for new entries
-                if tx['from_asset']:
-                    from_asset_name = self.token_resolver.get_token_name(tx['from_asset'], 'ethereum')
-                    cursor.execute('''
-                        UPDATE thorchain_transactions 
-                        SET from_asset_name = ? 
-                        WHERE tx_id = ? AND from_asset = ?
-                    ''', (from_asset_name, tx['tx_id'], tx['from_asset']))
-                
-                if tx['to_asset']:
-                    to_asset_name = self.token_resolver.get_token_name(tx['to_asset'], 'ethereum')
-                    cursor.execute('''
-                        UPDATE thorchain_transactions 
-                        SET to_asset_name = ? 
-                        WHERE tx_id = ? AND to_asset = ?
-                    ''', (to_asset_name, tx['tx_id'], tx['to_asset']))
-                    
             except Exception as e:
                 logger.error(f"Error saving transaction {tx['tx_id']}: {e}")
                 

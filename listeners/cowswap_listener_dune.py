@@ -16,7 +16,6 @@ import requests
 # Add shared directory to path
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from shared.token_name_resolver import TokenNameResolver
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -26,9 +25,6 @@ class CowSwapDuneListener:
     def __init__(self, db_path: str = "databases/cowswap_transactions.db"):
         self.db_path = db_path
         self.init_database()
-        
-        # Initialize token name resolver
-        self.token_resolver = TokenNameResolver()
         
         # ShapeShift affiliate addresses by chain
         self.shapeshift_affiliates = {
@@ -89,16 +85,24 @@ class CowSwapDuneListener:
                 CREATE TABLE cowswap_transactions (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     chain TEXT NOT NULL,
+                    tx_hash TEXT NOT NULL,
                     block_time TEXT NOT NULL,
+                    block_timestamp INTEGER,
+                    block_number INTEGER,
+                    event_type TEXT,
+                    owner TEXT,
                     trader TEXT NOT NULL,
                     sell_token TEXT NOT NULL,
                     buy_token TEXT NOT NULL,
+                    sell_amount TEXT,
+                    buy_amount TEXT,
+                    fee_amount TEXT,
                     units_sold TEXT,
                     units_bought TEXT,
                     usd_value REAL,
-                    tx_hash TEXT NOT NULL,
                     order_uid TEXT,
                     app_code TEXT,
+                    app_data TEXT,
                     sell_token_name TEXT,
                     buy_token_name TEXT,
                     affiliate_fee_usd REAL,
@@ -119,10 +123,32 @@ class CowSwapDuneListener:
             columns = [row[1] for row in cursor.fetchall()]
             
             # Add missing columns
+            if 'chain' not in columns:
+                cursor.execute('ALTER TABLE cowswap_transactions ADD COLUMN chain TEXT')
+            if 'tx_hash' not in columns:
+                cursor.execute('ALTER TABLE cowswap_transactions ADD COLUMN tx_hash TEXT')
             if 'block_time' not in columns:
                 cursor.execute('ALTER TABLE cowswap_transactions ADD COLUMN block_time TEXT')
+            if 'block_timestamp' not in columns:
+                cursor.execute('ALTER TABLE cowswap_transactions ADD COLUMN block_timestamp INTEGER')
+            if 'block_number' not in columns:
+                cursor.execute('ALTER TABLE cowswap_transactions ADD COLUMN block_number INTEGER')
+            if 'event_type' not in columns:
+                cursor.execute('ALTER TABLE cowswap_transactions ADD COLUMN event_type TEXT')
+            if 'owner' not in columns:
+                cursor.execute('ALTER TABLE cowswap_transactions ADD COLUMN owner TEXT')
             if 'trader' not in columns:
                 cursor.execute('ALTER TABLE cowswap_transactions ADD COLUMN trader TEXT')
+            if 'sell_token' not in columns:
+                cursor.execute('ALTER TABLE cowswap_transactions ADD COLUMN sell_token TEXT')
+            if 'buy_token' not in columns:
+                cursor.execute('ALTER TABLE cowswap_transactions ADD COLUMN buy_token TEXT')
+            if 'sell_amount' not in columns:
+                cursor.execute('ALTER TABLE cowswap_transactions ADD COLUMN sell_amount TEXT')
+            if 'buy_amount' not in columns:
+                cursor.execute('ALTER TABLE cowswap_transactions ADD COLUMN buy_amount TEXT')
+            if 'fee_amount' not in columns:
+                cursor.execute('ALTER TABLE cowswap_transactions ADD COLUMN fee_amount TEXT')
             if 'units_sold' not in columns:
                 cursor.execute('ALTER TABLE cowswap_transactions ADD COLUMN units_sold TEXT')
             if 'units_bought' not in columns:
@@ -133,6 +159,8 @@ class CowSwapDuneListener:
                 cursor.execute('ALTER TABLE cowswap_transactions ADD COLUMN order_uid TEXT')
             if 'app_code' not in columns:
                 cursor.execute('ALTER TABLE cowswap_transactions ADD COLUMN app_code TEXT')
+            if 'app_data' not in columns:
+                cursor.execute('ALTER TABLE cowswap_transactions ADD COLUMN app_data TEXT')
             if 'sell_token_name' not in columns:
                 cursor.execute('ALTER TABLE cowswap_transactions ADD COLUMN sell_token_name TEXT')
             if 'buy_token_name' not in columns:

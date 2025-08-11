@@ -17,7 +17,7 @@ from eth_abi import decode
 # Add shared directory to path
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from shared.token_name_resolver import TokenNameResolver
+from shared.block_tracker import BlockTracker
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -29,8 +29,8 @@ class PortalsListener:
         self.alchemy_api_key = os.getenv('ALCHEMY_API_KEY')
         self.init_database()
         
-        # Initialize token name resolver
-        self.token_resolver = TokenNameResolver()
+        # Initialize block tracker
+        self.block_tracker = BlockTracker()
         
         # ShapeShift affiliate addresses by chain
         self.shapeshift_affiliates = {
@@ -225,9 +225,15 @@ class PortalsListener:
             
         try:
             latest_block = w3.eth.block_number
-            start_block = max(chain_config['start_block'], latest_block - blocks_to_scan)
+            start_block = self.block_tracker.get_last_scanned_block(
+                'portals', chain_name, chain_config['start_block']
+            )
+            end_block = latest_block
             
-            logger.info(f"🔍 Scanning {chain_config['name']} blocks {start_block} to {latest_block}")
+            if blocks_to_scan:
+                start_block = max(start_block, latest_block - blocks_to_scan)
+            
+            logger.info(f"🔍 Scanning {chain_config['name']} blocks {start_block} to {end_block}")
             
             events = []
             current_block = start_block
@@ -292,6 +298,9 @@ class PortalsListener:
                     logger.error(f"Error fetching logs for blocks {current_block}-{end_block}: {e}")
                     current_block = end_block + 1
                     continue
+            
+            # Update last scanned block
+            self.block_tracker.update_last_scanned_block('portals', chain_name, end_block)
                     
             return events
             
@@ -324,31 +333,6 @@ class PortalsListener:
                     event['affiliate_fee_usd'], event['volume_usd']
                 ))
                 
-                # Add token names for new entries
-                if event['input_token']:
-                    input_token_name = self.token_resolver.get_token_name(event['input_token'], event['chain'])
-                    cursor.execute('''
-                        UPDATE portals_transactions 
-                        SET input_token_name = ? 
-                        WHERE tx_hash = ? AND chain = ? AND input_token = ?
-                    ''', (input_token_name, event['tx_hash'], event['chain'], event['input_token']))
-                
-                if event['output_token']:
-                    output_token_name = self.token_resolver.get_token_name(event['output_token'], event['chain'])
-                    cursor.execute('''
-                        UPDATE portals_transactions 
-                        SET output_token_name = ? 
-                        WHERE tx_hash = ? AND chain = ? AND output_token = ?
-                    ''', (output_token_name, event['tx_hash'], event['chain'], event['output_token']))
-                
-                if event['affiliate_token']:
-                    affiliate_token_name = self.token_resolver.get_token_name(event['affiliate_token'], event['chain'])
-                    cursor.execute('''
-                        UPDATE portals_transactions 
-                        SET affiliate_token_name = ? 
-                        WHERE tx_hash = ? AND chain = ? AND affiliate_token = ?
-                    ''', (affiliate_token_name, event['tx_hash'], event['chain'], event['affiliate_token']))
-                    
             except Exception as e:
                 logger.error(f"Error saving event {event['tx_hash']}: {e}")
                 

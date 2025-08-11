@@ -210,63 +210,60 @@ class FixedJulyAnalyzer:
             relay_db_path = "databases/affiliate.db"
             if not os.path.exists(relay_db_path):
                 print(f"   ⚠️ Relay database not found: {relay_db_path}")
-                return {'protocol': 'Relay', 'transactions': 0, 'total_volume': 0, 'total_fees': 0, 'fee_by_token': {}}
+                return {'protocol': 'Relay', 'transactions': 0, 'total_volume': 0, 'total_fees': 0, 'trade_pairs': {}}
             
             conn = sqlite3.connect(relay_db_path)
             cursor = conn.cursor()
             
-            # Get column names first
-            cursor.execute("PRAGMA table_info(relay_affiliate_fees)")
+            # Use the new detailed transactions table
+            cursor.execute("PRAGMA table_info(relay_detailed_transactions)")
             columns = [row[1] for row in cursor.fetchall()]
-            print(f"   📋 Relay columns: {columns}")
             
-            # Get July 2025 transactions (using actual timestamps from database)
-            july_start_ts = 1751842906  # 2025-07-06 16:01:46
-            july_end_ts = 1753731339    # 2025-07-28 12:35:39
+            july_start_ts = int(datetime(2025, 7, 1).timestamp())
+            july_end_ts = int(datetime(2025, 7, 31).timestamp())
             
             cursor.execute('''
-                SELECT * FROM relay_affiliate_fees 
+                SELECT * FROM relay_detailed_transactions 
                 WHERE timestamp >= ? AND timestamp <= ?
             ''', (july_start_ts, july_end_ts))
             
             relay_transactions = cursor.fetchall()
             conn.close()
             
-            print(f"   📊 Found {len(relay_transactions)} July 2025 Relay transactions")
-            
-            # Use actual claimed amount: 4.82 ETH between June 27 and July 25
-            # Calculate the proportion for July 2025
-            # June 27, 2025 to July 25, 2025 = ~28 days
-            # July 6, 2025 to July 28, 2025 = ~22 days
-            total_period_days = 28  # June 27 to July 25
-            july_period_days = 22   # July 6 to July 28
-            july_proportion = july_period_days / total_period_days
-            
-            # Apply proportion to claimed amount
-            july_claimed_eth = 4.82 * july_proportion
-            july_claimed_usd = july_claimed_eth * 3500  # ETH price ~$3500
-            
-            print(f"   🎯 Actual claimed amount: {july_claimed_eth:.3f} ETH (${july_claimed_usd:.2f})")
-            print(f"   📅 July proportion: {july_proportion:.2%} of total period")
+            print(f"   📊 Found {len(relay_transactions)} July 2025 detailed Relay transactions")
             
             # Analyze data
-            total_fees_eth = july_claimed_eth
-            fee_by_token = {'ETH': july_claimed_usd}
+            trade_pairs = defaultdict(float)
+            total_volume = 0
+            total_fees = 0
             
-            # Estimate volume (typically 100-1000x the affiliate fee)
-            estimated_volume = july_claimed_usd * 100  # Conservative estimate
-            
+            for row in relay_transactions:
+                row_dict = dict(zip(columns, row))
+                from_token_name = self.token_resolver.get_token_name(row_dict['from_token'], 'base')
+                to_token_name = self.token_resolver.get_token_name(row_dict['to_token'], 'base')
+                
+                if from_token_name and to_token_name and from_token_name != to_token_name:
+                    pair = f"{from_token_name}/{to_token_name}"
+                    # Estimate volume from fee
+                    fee_token_name = self.token_resolver.get_token_name(row_dict['affiliate_fee_token'], 'base')
+                    fee_amount_usd = self.safe_float(row_dict.get('affiliate_fee_amount', 0)) / 1e18 * self.get_token_price(fee_token_name)
+                    volume_usd = fee_amount_usd * 100 # Estimate volume
+                    
+                    trade_pairs[pair] += volume_usd
+                    total_volume += volume_usd
+                    total_fees += fee_amount_usd
+
             return {
                 'protocol': 'Relay',
-                'transactions': len(relay_transactions),  # Keep original count for reference
-                'total_volume': estimated_volume,
-                'total_fees': july_claimed_usd,
-                'fee_by_token': fee_by_token
+                'transactions': len(relay_transactions),
+                'total_volume': total_volume,
+                'total_fees': total_fees,
+                'trade_pairs': dict(trade_pairs)
             }
             
         except Exception as e:
             print(f"   ❌ Error analyzing Relay: {e}")
-            return {'protocol': 'Relay', 'transactions': 0, 'total_volume': 0, 'total_fees': 0, 'fee_by_token': {}}
+            return {'protocol': 'Relay', 'transactions': 0, 'total_volume': 0, 'total_fees': 0, 'trade_pairs': {}}
     
     def generate_report(self):
         """Generate comprehensive report"""

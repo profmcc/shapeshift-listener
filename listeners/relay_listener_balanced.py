@@ -21,7 +21,6 @@ from dotenv import load_dotenv
 # Add shared directory to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from shared.custom_logging import setup_logger, get_logger
-from shared.token_name_resolver import TokenNameResolver
 
 load_dotenv()
 setup_logger("relay_listener_balanced")
@@ -32,9 +31,6 @@ class BalancedRelayListener:
         """Initialize the Relay Listener"""
         self.config = self._load_config(config_path)
         self._init_database()
-        
-        # Initialize token name resolver
-        self.token_resolver = TokenNameResolver()
         
         # Get affiliate and claiming addresses
         self.affiliate_address = self.config['affiliate_address'].lower()
@@ -191,7 +187,6 @@ class BalancedRelayListener:
                                 logger.info(f"Found potential affiliate fee in {tx_hash}: {amount} wei")
                                 
                                 token_address = self._detect_affiliate_token(w3, receipt, amount)
-                                token_name = self.token_resolver.get_token_name(token_address, chain_name)
                                 
                                 fees.append((
                                     tx_hash,
@@ -203,7 +198,6 @@ class BalancedRelayListener:
                                     self.affiliate_address,
                                     str(amount),
                                     token_address,
-                                    token_name,
                                     f"Potential affiliate fee: {amount} wei"
                                 ))
                 
@@ -245,7 +239,6 @@ class BalancedRelayListener:
                                 logger.info(f"Found ERC-20 affiliate fee in {tx_hash}: {amount} tokens")
                                 
                                 token_address = log['address']
-                                token_name = self.token_resolver.get_token_name(token_address, chain_name)
                                 
                                 fees.append((
                                     tx_hash,
@@ -257,7 +250,6 @@ class BalancedRelayListener:
                                     self.affiliate_address,
                                     str(amount),
                                     token_address,
-                                    token_name,
                                     f"ERC-20 affiliate fee: {amount} tokens"
                                 ))
                 

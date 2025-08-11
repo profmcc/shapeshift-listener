@@ -1,113 +1,108 @@
-import sqlite3
+#!/usr/bin/env python3
+"""
+Block Tracker
+Persistently stores and retrieves the last block number scanned for each protocol/chain combination.
+"""
+
 import os
-from typing import Optional, Dict
-from datetime import datetime
-from web3 import Web3
+import sqlite3
+import logging
 
-_DB_PATH = os.path.expanduser('~/.block_tracker.sqlite')
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-# RPC endpoints for different chains
-RPC_ENDPOINTS = {
-    'arbitrum': "https://arbitrum-mainnet.infura.io/v3/208a3474635e4ebe8ee409cef3fbcd40",
-    'ethereum': "https://mainnet.infura.io/v3/208a3474635e4ebe8ee409cef3fbcd40",
-    'polygon': "https://polygon-mainnet.infura.io/v3/208a3474635e4ebe8ee409cef3fbcd40",
-    'optimism': "https://optimism-mainnet.infura.io/v3/208a3474635e4ebe8ee409cef3fbcd40",
-    'base': "https://mainnet.base.org",
-    'avalanche': "https://avalanche-mainnet.infura.io/v3/208a3474635e4ebe8ee409cef3fbcd40",
-    'bsc': "https://bsc-dataseed.binance.org"
-}
+class BlockTracker:
+    def __init__(self, db_path: str = "databases/block_tracker.db"):
+        self.db_path = db_path
+        self._init_database()
 
-# July 1st, 2024 timestamps (approximate)
-JULY_1ST_TIMESTAMP = 1719792000  # July 1st, 2024 00:00:00 UTC
-
-_SCHEMA = '''
-CREATE TABLE IF NOT EXISTS block_tracking (
-    listener_name TEXT PRIMARY KEY,
-    chain TEXT NOT NULL,
-    last_processed_block INTEGER NOT NULL,
-    last_run_timestamp INTEGER NOT NULL
-);
-'''
-
-def init_database():
-    """Initialize the block tracking database."""
-    with sqlite3.connect(_DB_PATH) as conn:
-        conn.execute(_SCHEMA)
-        conn.commit()
-
-def get_july_1st_block(chain: str) -> int:
-    """Get the block number closest to July 1st, 2024 for a given chain."""
-    w3 = Web3(Web3.HTTPProvider(RPC_ENDPOINTS[chain]))
-    
-    # Binary search to find the block closest to July 1st
-    left = 0
-    right = w3.eth.block_number
-    
-    while left < right:
-        mid = (left + right) // 2
-        try:
-            block = w3.eth.get_block(mid)
-            if block['timestamp'] < JULY_1ST_TIMESTAMP:
-                left = mid + 1
-            else:
-                right = mid
-        except:
-            right = mid - 1
-    
-    return left
-
-def get_last_processed_block(listener_name: str) -> Optional[int]:
-    """Get the last processed block for a listener."""
-    with sqlite3.connect(_DB_PATH) as conn:
-        cur = conn.execute('SELECT last_processed_block FROM block_tracking WHERE listener_name = ?', (listener_name,))
-        row = cur.fetchone()
-        return row[0] if row else None
-
-def set_last_processed_block(listener_name: str, chain: str, block_number: int):
-    """Set the last processed block for a listener."""
-    with sqlite3.connect(_DB_PATH) as conn:
-        conn.execute('''
-            INSERT OR REPLACE INTO block_tracking (listener_name, chain, last_processed_block, last_run_timestamp)
-            VALUES (?, ?, ?, ?)
-        ''', (listener_name, chain, block_number, int(datetime.now().timestamp())))
-        conn.commit()
-
-def get_start_block(listener_name: str, chain: str) -> int:
-    """Get the starting block for a listener (either last processed + 1 or July 1st)."""
-    last_block = get_last_processed_block(listener_name)
-    if last_block is None:
-        # First run - start from July 1st
-        return get_july_1st_block(chain)
-    else:
-        # Continue from last processed block + 1
-        return last_block + 1
-
-def get_all_listeners_status() -> Dict[str, Dict]:
-    """Get status of all listeners."""
-    with sqlite3.connect(_DB_PATH) as conn:
-        cur = conn.execute('SELECT listener_name, chain, last_processed_block, last_run_timestamp FROM block_tracking')
-        rows = cur.fetchall()
+    def _init_database(self):
+        """Initialize the block tracker database and table."""
+        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
         
-        status = {}
-        for row in rows:
-            listener_name, chain, last_block, timestamp = row
-            status[listener_name] = {
-                'chain': chain,
-                'last_processed_block': last_block,
-                'last_run': datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
-            }
-        return status
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS block_tracker (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                protocol_name TEXT NOT NULL,
+                chain_name TEXT NOT NULL,
+                last_scanned_block INTEGER NOT NULL,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(protocol_name, chain_name)
+            )
+        ''')
+        
+        conn.commit()
+        conn.close()
+
+    def get_last_scanned_block(self, protocol_name: str, chain_name: str, default_start_block: int) -> int:
+        """
+        Get the last scanned block for a given protocol and chain.
+        If no record is found, it returns the default_start_block.
+        """
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute(
+            "SELECT last_scanned_block FROM block_tracker WHERE protocol_name = ? AND chain_name = ?",
+            (protocol_name, chain_name)
+        )
+        result = cursor.fetchone()
+        
+        conn.close()
+        
+        if result:
+            logger.info(f"Resuming scan for {protocol_name} on {chain_name} from block {result[0] + 1}")
+            return result[0] + 1
+        else:
+            logger.info(f"No previous scan found for {protocol_name} on {chain_name}. Starting from block {default_start_block}.")
+            return default_start_block
+
+    def update_last_scanned_block(self, protocol_name: str, chain_name: str, block_number: int):
+        """
+        Update the last scanned block for a given protocol and chain.
+        """
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute(
+            """
+            INSERT OR REPLACE INTO block_tracker (protocol_name, chain_name, last_scanned_block, updated_at)
+            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+            """,
+            (protocol_name, chain_name, block_number)
+        )
+        
+        conn.commit()
+        conn.close()
+        logger.info(f"Updated last scanned block for {protocol_name} on {chain_name} to {block_number}")
+
+def main():
+    """Example usage and testing"""
+    tracker = BlockTracker()
+    
+    # Example: Relay on Base
+    protocol = "relay"
+    chain = "base"
+    default_start = 33000000
+    
+    # Get last block (will be default first time)
+    start_block = tracker.get_last_scanned_block(protocol, chain, default_start)
+    print(f"Starting scan at block: {start_block}")
+    
+    # Simulate a scan
+    end_block = start_block + 1000
+    print(f"Simulating scan up to block: {end_block}")
+    
+    # Update the tracker
+    tracker.update_last_scanned_block(protocol, chain, end_block)
+    
+    # Get the last block again
+    next_start_block = tracker.get_last_scanned_block(protocol, chain, default_start)
+    print(f"Next scan should start at block: {next_start_block}")
+    assert next_start_block == end_block + 1
 
 if __name__ == "__main__":
-    # Initialize database
-    init_database()
-    print("Block tracking database initialized.")
-    
-    # Show July 1st blocks for all chains
-    print("\nJuly 1st, 2024 block numbers:")
-    for chain in RPC_ENDPOINTS:
-        try:
-            block = get_july_1st_block(chain)
-            print(f"  {chain}: {block:,}")
-        except Exception as e:
-            print(f"  {chain}: Error - {e}") 
+    main() 
