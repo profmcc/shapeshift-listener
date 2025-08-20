@@ -1,0 +1,42 @@
+{
+  "ethereum": [
+    "0x90A48D5CF7343B08dA12E067680B4C6dbfE551Be"
+  ],
+  "base": [
+    "0x9c9aA90363630d4ab1D9dbF416cc3BBC8d3Ed502"
+  ],
+  "optimism": [
+    "0x6268d07327f4fb7380732dc6d63d95F88c0E083b"
+  ],
+  "avalanche": [
+    "0x74d63F31C2335b5b3BA7ad2812357672b2624cEd"
+  ],
+  "polygon": [
+    "0xB5F944600785724e31Edb90F9DFa16dBF01Af000"
+  ],
+  "gnosis": [
+    "0xb0E3175341794D1dc8E5F02a02F9D26989EbedB3"
+  ],
+  "bsc": [
+    "0x8b92b1698b57bEDF2142297e9397875ADBb2297E"
+  ],
+  "arbitrum": [
+    "0x38276553F8fbf2A027D901F8be45f00373d8Dd48"
+  ],
+  "solana": [
+    "C7RTJbss7R1r7j8NUNYbasUXfbPJR99PMhqznvCiU43N"
+  ],
+  "cosmos": [
+    "cosmos1qgmqsmytnwm6mhyxwjeur966lv9jacfexgfzxs",
+    "cosmos173g2xx98e3fs0t4fnmgfl69g5l3qu4vndgtsel",
+    "cosmos1hmpklv86wmkj8y8k2dd4wd6rcwln6und7v0s92"
+  ],
+  "thorchain": [
+    "thor1xmaggkcln5m5fnha2780xrdrulmplvfrz6wj3l",
+    "thor1crs0y53jfg224mettqeg883e6ume49tllktg2s",
+    "thor122h9hlrugzdny9ct95z6g7afvpzu34s73uklju"
+  ],
+  "chainflip": [
+    "cFMeDPtPHccVYdBSJKTtCYuy7rewFNpro3xZBKaCGbSS2xhRi"
+  ]
+} 
