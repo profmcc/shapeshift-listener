@@ -1,11 +1,11 @@
-# 🔍 Partially Working Listeners - Summary
+# 🔍 Partially Working Listeners - Main Documentation
 
 ## 📊 **Status: PARTIALLY WORKING**
 
 ### **🎯 Overview**
 This folder contains listeners that have working infrastructure but cannot detect actual affiliate transactions due to technical limitations.
 
-## 📁 **Contents**
+## 📁 **Folder Structure**
 
 ### **1. Chainflip Listener** (`chainflip/`)
 - **Status**: Infrastructure Ready, Transaction Detection Failed
@@ -13,16 +13,22 @@ This folder contains listeners that have working infrastructure but cannot detec
 - **Broker Discovery**: ✅ ShapeShift brokers found with balances
 - **Transaction Detection**: ❌ Cannot detect affiliate transactions
 - **Issue**: RPC method parameter conflicts and data structure mismatches
+- **Documentation**: `chainflip/README.md`
 
-### **2. Future Listeners**
-- Additional partially working listeners will be added here as they are identified
+### **2. Relay Listener** (`relay/`)
+- **Status**: Infrastructure Ready, Transaction Detection Failed
+- **Infrastructure**: ✅ Ethereum node connection working
+- **Contract Interaction**: ✅ Can interact with Relay contracts
+- **Transaction Detection**: ❌ Cannot detect affiliate transactions
+- **Issue**: Event signature mismatch (`AffiliateFee` vs `ERC20AffiliateFee`)
+- **Documentation**: `relay/README.md`
 
 ## 🔍 **Common Characteristics**
 
 ### **✅ What's Working**
 1. **Infrastructure Connectivity**: Successfully connected to target networks
 2. **Basic Data Access**: Can retrieve network status and basic information
-3. **Broker Identification**: Can identify ShapeShift infrastructure
+3. **Broker/Contract Identification**: Can identify ShapeShift infrastructure
 4. **Data Export**: CSV export and logging systems working
 
 ### **❌ What's Not Working**
@@ -51,20 +57,21 @@ This folder contains listeners that have working infrastructure but cannot detec
 3. **Performance Optimization**: Optimize detection and monitoring
 4. **Feature Enhancement**: Add advanced monitoring capabilities
 
-## 📋 **Folder Structure**
+## 📋 **Detailed Status**
 
-```
-partially_working/
-├── PARTIALLY_WORKING_SUMMARY.md    # This file
-├── chainflip/                      # Chainflip listener
-│   ├── README.md                   # Main documentation
-│   ├── TECHNICAL_IMPLEMENTATION_GUIDE.md  # Technical details
-│   ├── CHAINFLIP_PARTIALLY_WORKING_SUMMARY.md  # Summary
-│   ├── *.py                       # Python scripts
-│   ├── *.csv                      # Data export files
-│   └── *.md                       # Documentation files
-└── [future_listeners]/            # Additional partially working listeners
-```
+### **Chainflip Listener**
+- **Files**: 10 Python scripts, 8 CSV files, 6 documentation files
+- **Infrastructure**: ✅ Working (Chainflip node connection)
+- **Broker Discovery**: ✅ Working (ShapeShift brokers found)
+- **Transaction Detection**: ❌ Failed (RPC method issues)
+- **Next Steps**: Fix RPC method parameters and data access
+
+### **Relay Listener**
+- **Files**: 1 Python script, 1 CSV file, 3 documentation files
+- **Infrastructure**: ✅ Working (Ethereum node connection)
+- **Contract Interaction**: ✅ Working (Relay contract access)
+- **Transaction Detection**: ❌ Failed (Event signature mismatch)
+- **Next Steps**: Fix event signature and parsing logic
 
 ## 🔧 **Technical Requirements**
 
@@ -156,8 +163,15 @@ partially_working/
 - **Documentation**: Report documentation issues or gaps
 - **Performance**: Report performance or reliability issues
 
+## 🔗 **Related Documentation**
+
+- **Main Repository**: `../README.md`
+- **Validated Listeners**: `../validated_listeners/README.md`
+- **Not Working at All**: `../not_working_at_all/README.md`
+- **Repository Summary**: `../REPOSITORY_SUMMARY.md`
+
 ---
 
 **Last Updated**: August 20, 2025  
 **Status**: Partially Working - Infrastructure Ready, Transaction Detection Failed  
-**Next Review**: Monthly review of progress and resolution efforts
+**Next Review**: Monthly review of all listener status and progress

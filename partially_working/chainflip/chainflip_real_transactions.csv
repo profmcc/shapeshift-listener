@@ -1,0 +1,1 @@
+timestamp,block_number,transaction_hash,broker_address,transaction_type,source_asset,destination_asset,amount_in,amount_out,affiliate_fee,fee_asset,source_chain,destination_chain,swap_id,swap_state,user_address,raw_data,detection_method
