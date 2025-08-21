@@ -1,7 +1,32 @@
 #!/usr/bin/env python3
 """
 Configuration Loader for ShapeShift Affiliate Tracker
-Centralized configuration management for all listeners
+====================================================
+
+HISTORY OF FAILURES & LEARNING:
+- Originally had strict validation that required ALL contract configs to be Ethereum addresses
+- This broke when ThorChain config had API endpoints (midgard_api, thornode_api)
+- Validation logic was too rigid and prevented any configuration from loading
+- Multiple listeners failed because they couldn't initialize with centralized config
+- Previous attempts at centralized config failed due to overly strict validation
+
+WHAT THIS SYSTEM IS ATTEMPTING:
+- Provide a single source of truth for all ShapeShift affiliate addresses
+- Centralize configuration management to avoid scattered hardcoded values
+- Enable easy updates to addresses, contracts, and settings without touching listener code
+- Support both centralized config users and legacy hardcoded listeners (hybrid approach)
+
+WHY THIS APPROACH:
+- Previous hardcoded approach led to inconsistent addresses across listeners
+- Some listeners used old addresses, others used new ones
+- Maintenance was difficult - had to update multiple files for one change
+- Centralized config provides consistency and maintainability
+
+CURRENT STATUS:
+- Validation logic removed for flexibility
+- Graceful fallbacks when config sections are missing
+- Path resolution fixed to work from any directory
+- Hybrid approach: centralized config for new listeners, legacy support for existing
 """
 
 import os
@@ -10,10 +35,32 @@ from typing import Dict, Any, List, Optional
 from dotenv import load_dotenv
 
 class ConfigLoader:
-    """Centralized configuration loader for all listeners"""
+    """
+    Centralized configuration loader for all listeners
+    
+    This class was redesigned after multiple failures with strict validation.
+    The original approach failed because:
+    1. Required all contract configs to be Ethereum addresses (broke ThorChain API endpoints)
+    2. Strict validation prevented any configuration from loading
+    3. Path resolution issues when called from different directories
+    
+    Current approach: Load config with minimal validation, provide graceful fallbacks
+    """
     
     def __init__(self, config_path: str = None):
-        """Initialize config loader with path to config file"""
+        """
+        Initialize config loader with path to config file
+        
+        PATH RESOLUTION FIX:
+        - Original: Used relative path "config/shapeshift_config.yaml"
+        - Problem: Failed when called from subdirectories like validated_listeners/
+        - Solution: Calculate absolute path from script location to project root
+        
+        VALIDATION APPROACH:
+        - Original: Strict validation that failed on any missing/invalid section
+        - Problem: Prevented system from working at all
+        - Solution: Load what's available, provide defaults for missing sections
+        """
         # Use environment variable if available, otherwise use default
         if config_path is None:
             # Get the directory where this script is located
@@ -29,7 +76,16 @@ class ConfigLoader:
         self._load_config()
     
     def _load_config(self):
-        """Load configuration from YAML file and resolve environment variables"""
+        """
+        Load configuration from YAML file and resolve environment variables
+        
+        ERROR HANDLING APPROACH:
+        - Original: Strict validation that failed on any error
+        - Problem: System couldn't start if config had any issues
+        - Solution: Graceful fallbacks, create empty config if loading fails
+        
+        This allows the system to work even with incomplete configuration
+        """
         try:
             # Load environment variables first
             load_dotenv()
@@ -63,7 +119,15 @@ class ConfigLoader:
             self.config = {}
     
     def get_api_key(self, key_name: str) -> str:
-        """Get API key from environment or config"""
+        """
+        Get API key from environment or config
+        
+        PRIORITY ORDER:
+        1. Environment variable (highest priority)
+        2. Configuration file (fallback)
+        
+        This allows for secure API key management via .env files
+        """
         # Try environment variable first
         env_key = os.getenv(key_name)
         if env_key:
@@ -76,11 +140,20 @@ class ConfigLoader:
         return ""
     
     def get_alchemy_api_key(self) -> str:
-        """Get Alchemy API key"""
+        """Get Alchemy API key - primary RPC provider"""
         return self.get_api_key('ALCHEMY_API_KEY')
     
     def get_shapeshift_affiliate_address(self, protocol: str = "primary") -> str:
-        """Get ShapeShift affiliate address for specific protocol"""
+        """
+        Get ShapeShift affiliate address for specific protocol
+        
+        ADDRESS STRATEGY:
+        - Try protocol-specific address first
+        - Fall back to primary address if protocol not found
+        
+        This supports the hybrid approach where different protocols
+        may use different affiliate addresses
+        """
         if not self.config or 'shapeshift_affiliates' not in self.config:
             return ""
         
@@ -94,7 +167,16 @@ class ConfigLoader:
         return affiliates.get('primary', '')
     
     def get_all_shapeshift_addresses(self) -> List[str]:
-        """Get all known ShapeShift affiliate addresses"""
+        """
+        Get all known ShapeShift affiliate addresses
+        
+        ADDRESS SOURCES:
+        1. Protocol-specific addresses (relay, portals, thorchain, etc.)
+        2. Variations list (common patterns and legacy addresses)
+        
+        This method consolidates all addresses from different sources
+        into a single list for comprehensive affiliate tracking
+        """
         if not self.config or 'shapeshift_affiliates' not in self.config:
             return []
         
@@ -121,14 +203,30 @@ class ConfigLoader:
         return unique_addresses
     
     def get_chain_config(self, chain_name: str) -> Dict[str, Any]:
-        """Get configuration for specific chain"""
+        """
+        Get configuration for specific chain
+        
+        CHAIN CONFIG INCLUDES:
+        - RPC URLs
+        - Start blocks
+        - Chunk sizes
+        - Rate limiting delays
+        """
         if not self.config or 'chains' not in self.config:
             return {}
         
         return self.config['chains'].get(chain_name, {})
     
     def get_contract_address(self, protocol: str, chain: str) -> str:
-        """Get contract address for specific protocol and chain"""
+        """
+        Get contract address for specific protocol and chain
+        
+        ADDRESS RESOLUTION:
+        1. Try exact chain name match
+        2. Try common chain aliases (eth/ethereum, matic/polygon, etc.)
+        
+        This handles variations in chain naming conventions
+        """
         if not self.config or 'contracts' not in self.config:
             return ""
         
@@ -159,7 +257,15 @@ class ConfigLoader:
         return ""
     
     def get_event_signature(self, protocol: str, event_type: str) -> str:
-        """Get event signature for specific protocol and event type"""
+        """
+        Get event signature for specific protocol and event type
+        
+        EVENT SIGNATURE FORMATS:
+        - Direct: 'swap_event'
+        - Suffixed: 'swap' -> looks for 'swap_event'
+        
+        This handles different naming conventions in the config
+        """
         if not self.config or 'contracts' not in self.config:
             return ""
         
@@ -181,7 +287,15 @@ class ConfigLoader:
         return ""
     
     def get_storage_path(self, path_type: str, protocol: str = "") -> str:
-        """Get storage path for specific type and protocol"""
+        """
+        Get storage path for specific type and protocol
+        
+        STORAGE TYPES:
+        - csv_directory: Base directory for CSV files
+        - database_directory: Base directory for databases
+        - backup_directory: Base directory for backups
+        - file_pattern: Specific file naming patterns
+        """
         if not self.config or 'storage' not in self.config:
             return ""
         
@@ -202,7 +316,15 @@ class ConfigLoader:
         return ""
     
     def get_listener_config(self, protocol: str) -> Dict[str, Any]:
-        """Get listener configuration for specific protocol"""
+        """
+        Get listener configuration for specific protocol
+        
+        CONFIG MERGING STRATEGY:
+        1. Start with common settings (applies to all listeners)
+        2. Override with protocol-specific settings
+        
+        This allows for shared defaults while supporting protocol-specific customization
+        """
         if not self.config or 'listeners' not in self.config:
             return {}
         
@@ -218,7 +340,16 @@ class ConfigLoader:
         return config
     
     def get_threshold(self, threshold_type: str) -> float:
-        """Get threshold value for specific type"""
+        """
+        Get threshold value for specific type
+        
+        THRESHOLD TYPES:
+        - minimum_volume_usd: Minimum transaction volume to process
+        - minimum_affiliate_fee_usd: Minimum affiliate fee to track
+        
+        HISTORY: Originally had $13.0 minimum volume threshold
+        CURRENT: Set to $0.0 for comprehensive tracking of all transactions
+        """
         if not self.config or 'thresholds' not in self.config:
             return 0.0
         
@@ -233,11 +364,18 @@ class ConfigLoader:
         return self.config['logging']
     
     def reload_config(self):
-        """Reload configuration from file"""
+        """Reload configuration from file without restarting"""
         self._load_config()
     
     def get_config_summary(self) -> Dict[str, Any]:
-        """Get summary of current configuration"""
+        """
+        Get summary of current configuration
+        
+        USEFUL FOR:
+        - Debugging configuration issues
+        - Understanding what's loaded
+        - Validating system state
+        """
         if not self.config:
             return {}
         
@@ -260,9 +398,11 @@ class ConfigLoader:
         return summary
 
 # Global config instance
+# This allows all listeners to share the same configuration
 config = ConfigLoader()
 
 # Convenience functions for easy access
+# These provide a simple interface for listeners to use
 def get_config() -> ConfigLoader:
     """Get global config instance"""
     return config
@@ -296,7 +436,21 @@ def get_threshold(threshold_type: str) -> float:
     return config.get_threshold(threshold_type)
 
 if __name__ == "__main__":
-    # Test configuration loading
+    """
+    Configuration Loader Test
+    
+    This test validates that the configuration system is working correctly.
+    Run this to verify configuration loading before using listeners.
+    
+    TEST COVERAGE:
+    - Basic configuration loading
+    - API key resolution
+    - ShapeShift address extraction
+    - Chain configuration access
+    - Contract address resolution
+    - Storage path resolution
+    - Threshold value retrieval
+    """
     try:
         print("🔧 Configuration Loader Test")
         print("=" * 40)

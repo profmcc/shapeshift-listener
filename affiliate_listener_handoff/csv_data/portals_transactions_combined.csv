@@ -1,0 +1,2 @@
+chain,block_date,sender,volume_usd,affiliate_token,affiliate_amount,block_number,id,tx_hash,input_token,created_at,input_amount,block_timestamp,output_amount,broadcaster,source_db,affiliate_fee_usd,output_token,partner,recipient
+ethereum,2025-06-24 06:08:59,,0.0,,,22774492,1,0x0840bba848e991cdcfbf2b71b8e1cb94fb72d6343ad4bb182f7ee1c48612221d,,1755469508,,1750770539,,,./scripts/debug/databases/portals_transactions.db,0.0,,0x90A48D5CF7343B08dA12E067680B4C6dbfE551Be,

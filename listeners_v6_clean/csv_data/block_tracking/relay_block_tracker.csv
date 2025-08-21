@@ -1,0 +1,6 @@
+chain,last_processed_block,last_processed_date,total_blocks_processed
+ethereum,19001000,1755718154,10
+polygon,50001000,1755718159,10
+arbitrum,100001000,1755718164,10
+optimism,50001000,1755718169,10
+base,32900100,1755718299,1

@@ -1,0 +1,15 @@
+# THORChain Data Consolidator Dependencies
+# These are mostly standard library modules, but listed for completeness
+
+# Core dependencies (all standard library)
+# - os
+# - json  
+# - csv
+# - sqlite3
+# - logging
+# - datetime
+# - pathlib
+# - typing
+# - argparse
+
+# No external packages required - all functionality uses Python standard library

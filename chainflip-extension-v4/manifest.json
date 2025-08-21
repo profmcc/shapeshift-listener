@@ -1,0 +1,50 @@
+{
+  "manifest_version": 3,
+  "name": "Chainflip Test Extension v4",
+  "version": "4.0.0",
+  "description": "Test extension with page testing and download capabilities",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting",
+    "tabs",
+    "downloads",
+    "webRequest"
+  ],
+  "host_permissions": [
+    "https://app.chainflip.io/*",
+    "https://chainflip.io/*",
+    "https://*.chainflip.io/*",
+    "https://httpbin.org/*",
+    "https://example.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://app.chainflip.io/*",
+        "https://chainflip.io/*",
+        "https://*.chainflip.io/*",
+        "https://httpbin.org/*",
+        "https://example.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Chainflip Test Extension v4"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["test-page.html", "test-data.json"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
+

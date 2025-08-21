@@ -1,0 +1,32 @@
+/* ButterSwap Scraper v6.0 - Simple Styles */
+
+/* Hide any existing UI */
+#butterswap-ui {
+  display: block !important;
+}
+
+/* Ensure UI is on top */
+#butterswap-ui {
+  z-index: 10000 !important;
+}
+
+/* Make sure inputs are visible */
+#butterswap-ui input {
+  color: white !important;
+}
+
+#butterswap-ui input::placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Button hover effects */
+#butterswap-ui button:hover {
+  opacity: 0.8;
+  transform: translateY(-1px);
+}
+
+/* Status text styling */
+#butterswap-ui #status {
+  word-wrap: break-word;
+  min-height: 20px;
+}

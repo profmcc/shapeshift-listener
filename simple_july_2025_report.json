@@ -1,0 +1,28 @@
+{
+  "summary": {
+    "total_transactions": 10922,
+    "total_volume_usd": 0,
+    "total_affiliate_fees_usd": 360707564084.0
+  },
+  "protocol_breakdown": [
+    {
+      "protocol": "THORChain",
+      "transactions": 0,
+      "volume_usd": 0,
+      "fees_usd": 0
+    },
+    {
+      "protocol": "CowSwap",
+      "transactions": 0,
+      "volume_usd": 0,
+      "fees_usd": 0
+    },
+    {
+      "protocol": "Relay",
+      "transactions": 10922,
+      "volume_usd": 0,
+      "fees_usd": 360707564084.0
+    }
+  ],
+  "top_trade_pairs": []
+}

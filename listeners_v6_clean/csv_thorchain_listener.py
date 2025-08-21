@@ -13,6 +13,11 @@ Key Features:
 - Dual detection: affiliate name "ss" + address thor122h9hlrugzdny9ct95z6g7afvpzu34s73uklju
 - Cross-chain liquidity pool transaction support
 
+Enhanced Affiliate Detection (Commented Out):
+- Memo pattern detection using :ss: suffix (e.g., :ss:55, :ss:0)
+- Asset-specific patterns: =:b: (Bitcoin), =:r: (RUNE), =:THOR.TCY: (THORChain)
+- Based on discoveries from blocks 22,456,113 and 22,470,673
+
 Author: ShapeShift Affiliate Tracker Team
 Version: v6.0 - Clean Centralized CSV
 Date: 2024
@@ -43,7 +48,13 @@ from config_loader import (
 # =============================================================================
 
 class CSVThorChainListener:
-    """CSV-based listener for THORChain swaps with ShapeShift affiliate fees"""
+    """CSV-based listener for THORChain swaps with ShapeShift affiliate fees
+    
+    Note: Enhanced affiliate detection logic using memo patterns (:ss:) has been
+    discovered and documented but is currently commented out. See the 
+    _is_shapeshift_affiliate_swap method for details on the enhanced detection
+    patterns found in blocks 22,456,113 and 22,470,673.
+    """
     
     def __init__(self):
         """Initialize the THORChain listener with centralized configuration"""
@@ -257,6 +268,55 @@ class CSVThorChainListener:
                     return True
                 if field in swap and self.shapeshift_affiliate_address.lower() in str(swap[field]).lower():
                     return True
+            
+            # =============================================================================
+            # ENHANCED SHAPESHIFT AFFILIATE DETECTION LOGIC (COMMENTED OUT)
+            # =============================================================================
+            # Based on discoveries from blocks 22,456,113 and 22,470,673
+            # This logic provides more accurate affiliate detection using memo patterns
+            
+            # # Check for ShapeShift affiliate memo patterns in swap metadata
+            # swap_metadata = swap.get('metadata', {}).get('swap', {})
+            # if swap_metadata:
+            #     # Check memo field for ShapeShift affiliate pattern (:ss:)
+            #     memo = swap_metadata.get('memo', '')
+            #     if memo and ':ss:' in memo.lower():
+            #         self.logger.info(f"🎯 Found ShapeShift affiliate transaction with :ss: pattern: {memo}")
+            #         return True
+            #     
+            #     # Check affiliate address in swap metadata
+            #     affiliate_address = swap_metadata.get('affiliateAddress', '')
+            #     if affiliate_address and self.shapeshift_affiliate_address in affiliate_address:
+            #         self.logger.info(f"🎯 Found ShapeShift affiliate transaction with address: {affiliate_address}")
+            #         return True
+            #     
+            #     # Check for specific memo patterns we discovered:
+            #     # =:b:...:ss:55 (Bitcoin transactions with 55 basis points)
+            #     # =:r:...:ss:55 (RUNE transactions with 55 basis points)  
+            #     # =:THOR.TCY:...:ss:0 (THORChain TCY transactions with 0 basis points)
+            #     if memo:
+            #         memo_parts = memo.split(':')
+            #         if len(memo_parts) >= 4:
+            #             # Check if memo ends with :ss: pattern
+            #             if memo_parts[-2] == 'ss':
+            #                 basis_points = memo_parts[-1]
+            #                 self.logger.info(f"🎯 Found ShapeShift affiliate transaction with :ss:{basis_points} pattern")
+            #                 return True
+            #             
+            #             # Check for specific asset patterns
+            #             if memo_parts[1] in ['b', 'r'] and 'ss' in memo_parts:
+            #                 self.logger.info(f"🎯 Found ShapeShift affiliate transaction with asset pattern: {memo_parts[1]}")
+            #                 return True
+            
+            # # Alternative approach: Check if any field contains the :ss: pattern
+            # for key, value in swap.items():
+            #     if isinstance(value, str) and ':ss:' in value.lower():
+            #         self.logger.info(f"🎯 Found ShapeShift affiliate transaction with :ss: in field {key}: {value}")
+            #         return True
+            
+            # =============================================================================
+            # END ENHANCED LOGIC
+            # =============================================================================
             
             return False
             

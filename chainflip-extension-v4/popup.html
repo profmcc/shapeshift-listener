@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chainflip Test Extension v4</title>
+    <style>
+        body {
+            width: 400px;
+            min-height: 500px;
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 600;
+        }
+        
+        .version {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .btn {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .btn-primary {
+            background: #4CAF50;
+            border-color: #4CAF50;
+        }
+        
+        .btn-primary:hover {
+            background: #45a049;
+            border-color: #45a049;
+        }
+        
+        .btn-secondary {
+            background: #2196F3;
+            border-color: #2196F3;
+        }
+        
+        .btn-secondary:hover {
+            background: #1976D2;
+            border-color: #1976D2;
+        }
+        
+        .btn-warning {
+            background: #FF9800;
+            border-color: #FF9800;
+        }
+        
+        .btn-warning:hover {
+            background: #F57C00;
+            border-color: #F57C00;
+        }
+        
+        .btn-danger {
+            background: #f44336;
+            border-color: #f44336;
+        }
+        
+        .btn-danger:hover {
+            background: #da190b;
+            border-color: #da190b;
+        }
+        
+        .test-history {
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .test-history h3 {
+            margin: 0 0 15px 0;
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .test-item {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 12px;
+        }
+        
+        .test-item:last-child {
+            border-bottom: none;
+        }
+        
+        .test-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .test-meta {
+            opacity: 0.7;
+            font-size: 11px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px 20px;
+            opacity: 0.7;
+        }
+        
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        .empty-state .text {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .empty-state .subtext {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+            font-size: 14px;
+            max-width: 300px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .notification.show {
+            opacity: 1;
+        }
+        
+        .notification.success {
+            background: rgba(76, 175, 80, 0.9);
+        }
+        
+        .notification.error {
+            background: rgba(244, 67, 54, 0.9);
+        }
+        
+        .notification.info {
+            background: rgba(33, 150, 243, 0.9);
+        }
+        
+        /* Custom scrollbar */
+        .test-history::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .test-history::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        .test-history::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        .test-history::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧪 Test Extension v4</h1>
+        <div class="version">v4.0.0</div>
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div id="test-pages-count" class="stat-value">0</div>
+            <div class="stat-label">Test Pages</div>
+        </div>
+        <div class="stat-card">
+            <div id="downloads-count" class="stat-value">0</div>
+            <div class="stat-label">Downloads</div>
+        </div>
+        <div class="stat-card">
+            <div id="success-rate" class="stat-value">0%</div>
+            <div class="stat-label">Success Rate</div>
+        </div>
+        <div class="stat-card">
+            <div id="last-activity" class="stat-value">--</div>
+            <div class="stat-label">Last Activity</div>
+        </div>
+    </div>
+    
+    <div class="actions">
+        <button id="create-test-page" class="btn btn-primary">🚀 Create Test Page</button>
+        <button id="open-test-page" class="btn btn-secondary">📖 Open Test Page</button>
+        <button id="download-all" class="btn btn-warning">📥 Download All</button>
+        <button id="clear-data" class="btn btn-danger">🗑️ Clear All Data</button>
+    </div>
+    
+    <div class="test-history">
+        <h3>Test History</h3>
+        <div id="test-history-list">
+            <div class="empty-state">
+                <div class="icon">📊</div>
+                <div class="text">No test pages yet</div>
+                <div class="subtext">Create your first test page to get started</div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="notification" class="notification"></div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>
+

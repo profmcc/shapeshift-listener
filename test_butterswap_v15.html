@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Butterswap Transaction Table Test - v15</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2d1b69;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #2d1b69;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .hash {
+            font-family: monospace;
+            color: #007bff;
+        }
+        .status-success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-pending {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        .amount {
+            font-weight: bold;
+            color: #2d1b69;
+        }
+        .address {
+            font-family: monospace;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Butterswap Transaction Table Test - v15</h1>
+        <p>This is a test page for the DeFi Data Snatcher v15 extension. The extension should be able to:</p>
+        <ul>
+            <li>🔍 Scan this transaction table</li>
+            <li>🔗 Generate full transaction hyperlinks</li>
+            <li>📝 Export data as simple text (no CSV processing)</li>
+            <li>📄 Export raw data as JSON</li>
+        </ul>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Hash</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Fee($)</th>
+                    <th>Status</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="hash">0xd12...55403</td>
+                    <td><span class="amount">11 USDC</span> <span class="address">0x32d...96cb6</span></td>
+                    <td><span class="amount">10.51051 USDC</span> <span class="address">0xFF0...900a5</span></td>
+                    <td>0.00</td>
+                    <td class="status-success">✅ Success</td>
+                    <td>2025-07-28 08:26:59(UTC)</td>
+                </tr>
+                <tr>
+                    <td class="hash">0x348...29efa</td>
+                    <td><span class="amount">0.0034 ETH</span> <span class="address">0x32d...96cb6</span></td>
+                    <td><span class="amount">53.51709 POL</span> <span class="address">0xFF0...900a5</span></td>
+                    <td>0.00</td>
+                    <td class="status-success">✅ Success</td>
+                    <td>2025-07-28 07:53:02(UTC)</td>
+                </tr>
+                <tr>
+                    <td class="hash">0x2d5...ca788</td>
+                    <td><span class="amount">0.0029 ETH</span> <span class="address">0x32d...96cb6</span></td>
+                    <td><span class="amount">45.539403 POL</span> <span class="address">0xFF0...900a5</span></td>
+                    <td>0.00</td>
+                    <td class="status-success">✅ Success</td>
+                    <td>2025-07-28 07:31:55(UTC)</td>
+                </tr>
+                <tr>
+                    <td class="hash">0x7f8...b1234</td>
+                    <td><span class="amount">100 USDC</span> <span class="address">0xabc...def1</span></td>
+                    <td><span class="amount">0.045 ETH</span> <span class="address">0x123...4567</span></td>
+                    <td>0.50</td>
+                    <td class="status-pending">⏳ Pending</td>
+                    <td>2025-07-28 06:15:30(UTC)</td>
+                </tr>
+                <tr>
+                    <td class="hash">0x9a1...c5678</td>
+                    <td><span class="amount">0.1 ETH</span> <span class="address">0xdef...abc2</span></td>
+                    <td><span class="amount">200 USDC</span> <span class="address">0x456...7890</span></td>
+                    <td>0.00</td>
+                    <td class="status-success">✅ Success</td>
+                    <td>2025-07-28 05:42:18(UTC)</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div style="margin-top: 30px; padding: 20px; background-color: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3;">
+            <h3>🧪 Testing Instructions for v15:</h3>
+            <ol>
+                <li><strong>Load the extension:</strong> Go to chrome://extensions/, enable Developer mode, click "Load unpacked", select the v15 folder</li>
+                <li><strong>Click the extension icon</strong> in your Chrome toolbar</li>
+                <li><strong>Click "🔍 Scan Table & Extract Links"</strong> to detect the table</li>
+                <li><strong>Click "📝 Export Simple Text"</strong> to download a .txt file (no CSV processing!)</li>
+                <li><strong>Click "📄 Export Raw Data"</strong> to download a .json file</li>
+            </ol>
+            
+            <h4>🎯 v15 Key Features:</h4>
+            <ul>
+                <li>✅ <strong>No CSV processing</strong> - completely bypassed to avoid errors</li>
+                <li>✅ <strong>Simple text export</strong> - human-readable .txt format</li>
+                <li>✅ <strong>JSON raw data export</strong> - complete data structure</li>
+                <li>✅ <strong>Hyperlink generation</strong> - full transaction URLs</li>
+                <li>✅ <strong>Error-free export</strong> - no complex string operations</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

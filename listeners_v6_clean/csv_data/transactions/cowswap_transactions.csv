@@ -1,0 +1,1 @@
+tx_hash,chain,block_number,timestamp,from_address,to_address,affiliate_address,affiliate_fee_amount,affiliate_fee_token,affiliate_fee_usd,volume_amount,volume_token,volume_usd,gas_used,gas_price,order_uid,receiver,created_at

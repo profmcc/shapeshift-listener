@@ -1,0 +1,61 @@
+{
+  "rpc_urls": {
+    "1": "https://eth-mainnet.g.alchemy.com/v2/_3x-ZVAe8aKBUMeRax2zOjg0fotYb3ms",
+    "137": "https://polygon-mainnet.g.alchemy.com/v2/_3x-ZVAe8aKBUMeRax2zOjg0fotYb3ms",
+    "8453": "https://base-mainnet.g.alchemy.com/v2/_3x-ZVAe8aKBUMeRax2zOjg0fotYb3ms",
+    "42161": "https://arb-mainnet.g.alchemy.com/v2/_3x-ZVAe8aKBUMeRax2zOjg0fotYb3ms",
+    "10": "https://opt-mainnet.g.alchemy.com/v2/_3x-ZVAe8aKBUMeRax2zOjg0fotYb3ms"
+  },
+  "api_keys": {
+    "etherscan": "208a3474635e4ebe8ee409cef3fbcd40",
+    "polygonscan": "208a3474635e4ebe8ee409cef3fbcd40",
+    "basescan": "208a3474635e4ebe8ee409cef3fbcd40",
+    "arbiscan": "208a3474635e4ebe8ee409cef3fbcd40",
+    "optimism": "208a3474635e4ebe8ee409cef3fbcd40"
+  },
+  "addresses": [
+    "0x90a48d5cf7343b08da12e067680b4c6dbfe551be",
+    "0x6268d07327f4fb7380732dc6d63d95f88c0e083b",
+    "0x74d63f31c2335b5b3ba7ad2812357672b2624ced",
+    "0xb5f944600785724e31edb90f9dfa16dbf01af000",
+    "0xb0e3175341794d1dc8e5f02a02f9d26989ebedb3",
+    "0x8b92b1698b57bedf2142297e9397875adbb2297e",
+    "0x38276553f8fbf2a027d901f8be45f00373d8dd48",
+    "0x5c59d0ec51729e40c413903be6a4612f4e2452da",
+    "0x9c9aa90363630d4ab1d9dbf416cc3bbc8d3ed502",
+    "0x4e4c9e7717da5bd1e98a5d723b6b1f964dd30861"
+  ],
+  "revenue_addresses": [
+    "0x90a48d5cf7343b08da12e067680b4c6dbfe551be",
+    "0x6268d07327f4fb7380732dc6d63d95f88c0e083b"
+  ],
+  "expense_addresses": [
+    "0x74d63f31c2335b5b3ba7ad2812357672b2624ced"
+  ],
+  "ignored_addresses": [
+    "0xb5f944600785724e31edb90f9dfa16dbf01af000"
+  ],
+  "custom_rules": [
+    {
+      "type": "method_signature",
+      "signature": "0xa9059cbb",
+      "category": "Token Transfer",
+      "subcategory": "ERC-20"
+    },
+    {
+      "type": "value_threshold",
+      "threshold": "1000000000000000000000",
+      "category": "Large Transfer",
+      "subcategory": "High Value"
+    }
+  ],
+  "scan_settings": {
+    "max_blocks_per_scan": 100,
+    "max_transactions_per_address": 500,
+    "scan_interval_hours": 24,
+    "enable_price_tracking": true,
+    "enable_token_metadata": true,
+    "test_mode": true,
+    "start_block_offset": 1000
+  }
+}

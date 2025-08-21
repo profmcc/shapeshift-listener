@@ -1,0 +1,1 @@
+chain,tx_hash,block_number,block_timestamp,block_time,event_type,owner,trader,sell_token,buy_token,sell_amount,buy_amount,fee_amount,units_sold,units_bought,usd_value,order_uid,app_code,app_data,sell_token_name,buy_token_name,affiliate_fee_usd,volume_usd,affiliate_address,affiliate_involved,created_at,created_date

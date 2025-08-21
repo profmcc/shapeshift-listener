@@ -1,0 +1,1 @@
+tx_id,date,height,from_address,to_address,affiliate_address,affiliate_fee_basis_points,affiliate_fee_amount,affiliate_fee_usd,from_asset,to_asset,from_amount,to_amount,from_amount_usd,to_amount_usd,volume_usd,swap_path,is_streaming_swap,liquidity_fee,swap_slip,timestamp,created_at,created_date

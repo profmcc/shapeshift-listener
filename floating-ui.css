@@ -1,0 +1,418 @@
+/* ButterSwap Floating Scraper v5.0 - Floating UI Styles */
+
+#butterswap-floating-scraper-v5 {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 400px;
+  max-height: 600px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  z-index: 10000;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: white;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#butterswap-floating-scraper-v5:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+#butterswap-floating-scraper-v5.minimized {
+  height: 60px;
+  overflow: hidden;
+}
+
+#butterswap-floating-scraper-v5.minimized .bs-content {
+  display: none;
+}
+
+/* Header */
+.bs-header {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: move;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bs-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+}
+
+.bs-header-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.bs-minimize-btn,
+.bs-close-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.bs-minimize-btn:hover,
+.bs-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+/* Content */
+.bs-content {
+  padding: 20px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.bs-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bs-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.bs-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.bs-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Controls */
+.bs-controls {
+  margin-bottom: 20px;
+}
+
+.bs-input-group {
+  margin-bottom: 15px;
+}
+
+.bs-input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.bs-input-group input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 14px;
+}
+
+.bs-input-group input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.bs-input-group small {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.bs-button-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.bs-button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.bs-button.primary {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+}
+
+.bs-button.secondary {
+  background: linear-gradient(135deg, #2196F3, #1976D2);
+  color: white;
+}
+
+.bs-button.danger {
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+  color: white;
+}
+
+.bs-button.info {
+  background: linear-gradient(135deg, #00BCD4, #0097A7);
+  color: white;
+}
+
+.bs-button.warning {
+  background: linear-gradient(135deg, #FF9800, #F57C00);
+  color: white;
+}
+
+.bs-button.success {
+  background: linear-gradient(135deg, #8BC34A, #689F38);
+  color: white;
+}
+
+.bs-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.bs-button:active {
+  transform: translateY(0);
+}
+
+.bs-button.bs-hidden {
+  display: none;
+}
+
+/* Status */
+.bs-status {
+  margin-bottom: 20px;
+}
+
+.bs-status h4 {
+  margin: 0 0 15px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.bs-progress-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.bs-progress-item {
+  text-align: center;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+}
+
+.bs-label {
+  display: block;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 5px;
+}
+
+.bs-value {
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+}
+
+.bs-progress-container {
+  margin-bottom: 15px;
+}
+
+.bs-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.bs-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50, #8BC34A);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+.bs-progress-text {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.bs-stats-mini {
+  display: flex;
+  justify-content: space-around;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Log */
+.bs-log {
+  margin-bottom: 20px;
+}
+
+.bs-log h4 {
+  margin: 0 0 15px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.bs-log-container {
+  max-height: 150px;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.bs-log-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.bs-log-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.bs-log-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+.bs-log-entry {
+  padding: 6px 0;
+  font-size: 11px;
+  line-height: 1.4;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bs-log-entry:last-child {
+  border-bottom: none;
+}
+
+.bs-log-info {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.bs-log-warning {
+  color: #FFD700;
+}
+
+.bs-log-error {
+  color: #FF6B6B;
+}
+
+.bs-log-success {
+  color: #4CAF50;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  #butterswap-floating-scraper-v5 {
+    width: 350px;
+    right: 10px;
+    top: 10px;
+  }
+  
+  .bs-button-group {
+    grid-template-columns: 1fr;
+  }
+  
+  .bs-progress-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#butterswap-floating-scraper-v5 {
+  animation: fadeIn 0.3s ease;
+}
+
+/* Dragging state */
+#butterswap-floating-scraper-v5.dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+/* Button states */
+.bs-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.bs-button:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Loading state */
+.bs-button.loading {
+  position: relative;
+  color: transparent;
+}
+
+.bs-button.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+

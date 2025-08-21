@@ -33,11 +33,11 @@ class FinalPortalsListener:
             8453: "0x9c9aA90363630d4ab1D9dbF416cc3BBC8d3Ed502",    # Base
         }
         
-        # Chain configurations with Alchemy URLs
+        # Chain configurations with Infura URLs (temporarily switching from Alchemy)
         self.chains = {
             'ethereum': {
                 'name': 'Ethereum',
-                'rpc_url': f'https://eth-mainnet.g.alchemy.com/v2/{self.alchemy_api_key}',
+                'rpc_url': f'https://mainnet.infura.io/v3/208a3474635e4ebe8ee409cef3fbcd40',
                 'chain_id': 1,
                 'portals_router': '0xbf5A7F3629fB325E2a8453D595AB103465F75E62',
                 'start_block': 22700000,
@@ -155,8 +155,8 @@ class FinalPortalsListener:
         
         shapeshift_affiliate = self.shapeshift_affiliates.get(chain_config['chain_id'])
         
-        # ERC-20 Transfer event signature
-        transfer_topic = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
+        # ERC-20 Transfer event signature (without 0x prefix)
+        transfer_topic = 'ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
         
         # Track all transfers
         transfers = []

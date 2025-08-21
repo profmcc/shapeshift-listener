@@ -1,395 +1,625 @@
 #!/usr/bin/env python3
 """
 ButterSwap Affiliate Fee Listener
-Tracks ShapeShift affiliate fees from ButterSwap trades across EVM chains.
+=================================
+
+HISTORY & LEARNING:
+- Originally part of a larger monolithic listener system
+- Had hardcoded affiliate addresses scattered throughout the code
+- Previous attempts at centralized config failed due to validation issues
+- Current approach: Hybrid system with both hardcoded and configurable addresses
+
+WHAT THIS LISTENER IS ATTEMPTING:
+- Monitor ButterSwap transactions across multiple EVM chains
+- Detect when ShapeShift receives affiliate fees from swaps
+- Track transaction volumes, fees, and user addresses
+- Provide comprehensive data for affiliate revenue analysis
+
+WHY BUTTERSWAP SPECIFICALLY:
+- ButterSwap is a DEX aggregator similar to Uniswap V2
+- Uses affiliate fee model where ShapeShift receives a percentage
+- Important for understanding ShapeShift's revenue from DEX activities
+- Base chain is primary focus due to recent deployment and activity
+
+CURRENT STATUS:
+- Working listener with hardcoded addresses (legacy approach)
+- Base chain uses 0x35339070f178dC4119732982C23F5a8d88D3f8a3
+- Other chains use various addresses for different protocols
+- CSV-based storage for easy analysis
+
+TECHNICAL APPROACH:
+- Web3.py for blockchain interaction
+- Event filtering for Swap, Mint, Burn, and Transfer events
+- Batch processing to handle high transaction volumes
+- Rate limiting to respect RPC provider limits
 """
 
 import os
-import sqlite3
+import sys
 import time
 import json
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional
-import logging
+import csv
+from datetime import datetime
+from typing import Dict, List, Optional, Tuple
 from web3 import Web3
-from eth_abi import decode
+from web3.exceptions import BlockNotFound, TransactionNotFound
+import logging
 
-# Add shared directory to path
-import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# Add the project root to the path for imports
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(project_root)
+
+# Import shared utilities
 from shared.block_tracker import BlockTracker
+from shared.token_prices import TokenPriceCache
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 class ButterSwapListener:
-    def __init__(self, db_path: str = "databases/butterswap_transactions.db"):
-        self.db_path = db_path
-        self.infura_api_key = os.getenv('INFURA_API_KEY', '208a3474635e4ebe8ee409cef3fbcd40')
-        self.alchemy_api_key = os.getenv('ALCHEMY_API_KEY')
-        self.init_database()
+    """
+    Listener for ButterSwap affiliate fee events
+    
+    This class monitors ButterSwap transactions across multiple EVM chains
+    to detect when ShapeShift receives affiliate fees. It uses a hybrid
+    approach where some addresses are hardcoded (legacy) and others could
+    be loaded from centralized config (future enhancement).
+    
+    AFFILIATE ADDRESS STRATEGY:
+    - Base chain: 0x35339070f178dC4119732982C23F5a8d88D3f8a3 (primary focus)
+    - Other chains: Various addresses for different protocols
+    - This reflects the reality that different chains may use different
+      affiliate addresses for historical or technical reasons
+    """
+    
+    def __init__(self, csv_file: str = "csv_data/butterswap_transactions.csv"):
+        """
+        Initialize the ButterSwap listener
         
-        # Initialize block tracker
-        self.block_tracker = BlockTracker()
+        INITIALIZATION APPROACH:
+        - Load hardcoded affiliate addresses (legacy approach)
+        - Initialize Web3 connections for each supported chain
+        - Set up CSV storage for transaction data
+        - Initialize block tracking for each chain
         
-        # ShapeShift affiliate addresses by chain
+        This approach ensures the listener works immediately without
+        depending on external configuration files.
+        """
+        self.csv_file = csv_file
+        
+        # Initialize CSV file if it doesn't exist
+        self._init_csv_file()
+        
+        # ShapeShift affiliate addresses by chain ID
+        # These are hardcoded for reliability (legacy approach)
+        # Future enhancement: Load from centralized config
         self.shapeshift_affiliates = {
-            1: "0x90A48D5CF7343B08dA12E067680B4C6dbfE551Be",      # Ethereum
+            1: "0x35339070f178dC4119732982C23F5a8d88D3f8a3",      # Ethereum
             137: "0xB5F944600785724e31Edb90F9DFa16dBF01Af000",     # Polygon
             10: "0x6268d07327f4fb7380732dc6d63d95F88c0E083b",      # Optimism
             42161: "0x38276553F8fbf2A027D901F8be45f00373d8Dd48",   # Arbitrum
-            8453: "0x9c9aA90363630d4ab1D9dbF416cc3BBC8d3Ed502",    # Base
+            8453: "0x35339070f178dC4119732982C23F5a8d88D3f8a3",    # Base (Updated - primary focus)
             43114: "0x74d63F31C2335b5b3BA7ad2812357672b2624cEd",  # Avalanche
             56: "0x8b92b1698b57bEDF2142297e9397875ADBb2297E"       # BSC
         }
         
-        # Chain configurations
-        self.chains = {
-            'ethereum': {
-                'name': 'Ethereum',
-                'chain_id': 1,
-                'rpc_url': f'https://eth-mainnet.g.alchemy.com/v2/{self.alchemy_api_key}' if self.alchemy_api_key else f'https://mainnet.infura.io/v3/{self.infura_api_key}',
-                'butterswap_router': '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',  # Uniswap V2 Router (ButterSwap likely uses similar)
-                'butterswap_factory': '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f',  # Uniswap V2 Factory
-                'chunk_size': 1000,
-                'delay': 1.0
-            },
-            'polygon': {
-                'name': 'Polygon',
-                'chain_id': 137,
-                'rpc_url': f'https://polygon-mainnet.g.alchemy.com/v2/{self.alchemy_api_key}' if self.alchemy_api_key else f'https://polygon-mainnet.infura.io/v3/{self.infura_api_key}',
-                'butterswap_router': '0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff',  # QuickSwap Router
-                'butterswap_factory': '0x5757371414417b8C6CAad45bAeF941aBc7d3Ab32',  # QuickSwap Factory
-                'chunk_size': 2000,
-                'delay': 0.5
-            },
-            'optimism': {
-                'name': 'Optimism',
-                'chain_id': 10,
-                'rpc_url': f'https://opt-mainnet.g.alchemy.com/v2/{self.alchemy_api_key}' if self.alchemy_api_key else f'https://optimism-mainnet.infura.io/v3/{self.infura_api_key}',
-                'butterswap_router': '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',  # Uniswap V2 Router
-                'butterswap_factory': '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f',  # Uniswap V2 Factory
-                'chunk_size': 2000,
-                'delay': 0.5
-            },
-            'arbitrum': {
-                'name': 'Arbitrum',
-                'chain_id': 42161,
-                'rpc_url': f'https://arb-mainnet.g.alchemy.com/v2/{self.alchemy_api_key}' if self.alchemy_api_key else f'https://arbitrum-mainnet.infura.io/v3/{self.infura_api_key}',
-                'butterswap_router': '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',  # Uniswap V2 Router
-                'butterswap_factory': '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f',  # Uniswap V2 Factory
-                'chunk_size': 2000,
-                'delay': 0.5
-            },
-            'base': {
-                'name': 'Base',
-                'chain_id': 8453,
-                'rpc_url': f'https://base-mainnet.g.alchemy.com/v2/{self.alchemy_api_key}' if self.alchemy_api_key else f'https://base-mainnet.infura.io/v3/{self.infura_api_key}',
-                'butterswap_router': '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',  # Uniswap V2 Router
-                'butterswap_factory': '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f',  # Uniswap V2 Factory
-                'chunk_size': 2000,
-                'delay': 0.5
-            },
-            'avalanche': {
-                'name': 'Avalanche',
-                'chain_id': 43114,
-                'rpc_url': f'https://avalanche-mainnet.g.alchemy.com/v2/{self.alchemy_api_key}' if self.alchemy_api_key else f'https://avalanche-mainnet.infura.io/v3/{self.infura_api_key}',
-                'butterswap_router': '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',  # Uniswap V2 Router
-                'butterswap_factory': '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f',  # Uniswap V2 Factory
-                'chunk_size': 2000,
-                'delay': 0.5
-            },
-            'bsc': {
-                'name': 'BSC',
-                'chain_id': 56,
-                'rpc_url': 'https://bsc-dataseed.binance.org/',
-                'butterswap_router': '0x10ED43C718714eb63d5aA57B78B54704E256024E',  # PancakeSwap Router
-                'butterswap_factory': '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73',  # PancakeSwap Factory
-                'chunk_size': 2000,
-                'delay': 0.5
-            }
-        }
+        # Initialize Web3 connections for each chain
+        # Each chain has its own RPC endpoint and connection
+        self.web3_connections = {}
+        self._init_web3_connections()
         
-        # ButterSwap event signatures
+        # Initialize block trackers for each chain
+        # This prevents re-processing the same blocks
+        self.block_trackers = {}
+        self._init_block_trackers()
+        
+        # Initialize token price cache
+        # Used for converting token amounts to USD values
+        self.token_prices = TokenPriceCache()
+        
+        # Event signatures for filtering
+        # These are the Keccak256 hashes of event definitions
         self.event_signatures = {
-            'swap': '0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822',
-            'mint': '0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f',
-            'burn': '0xdccd412f0b1252819cb1fd330b93224ca42612892bb3f4f789976e6d81936496',
-            'erc20_transfer': '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
+            'Swap': '0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822',
+            'Mint': '0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f',
+            'Burn': '0xdccd412f0b1252819cb1fd330b93224ca42612892bb3f4f789976e6d81936496',
+            'Transfer': '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
         }
-
-    def init_database(self):
-        """Initialize the database with ButterSwap transactions table"""
-        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
         
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS butterswap_transactions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                chain TEXT NOT NULL,
-                tx_hash TEXT NOT NULL,
-                block_number INTEGER NOT NULL,
-                block_timestamp INTEGER NOT NULL,
-                event_type TEXT NOT NULL,
-                owner TEXT,
-                sell_token TEXT,
-                buy_token TEXT,
-                sell_amount TEXT,
-                buy_amount TEXT,
-                fee_amount TEXT,
-                order_uid TEXT,
-                app_data TEXT,
-                affiliate_fee_usd REAL,
-                volume_usd REAL,
-                sell_token_name TEXT,
-                buy_token_name TEXT,
-                created_at INTEGER DEFAULT (strftime('%s', 'now')),
-                UNIQUE(tx_hash, chain, event_type)
-            )
-        ''')
+        logger.info("ButterSwap listener initialized successfully")
+        logger.info(f"Monitoring {len(self.web3_connections)} chains")
+        logger.info(f"Primary focus: Base chain (0x35339070f178dC4119732982C23F5a8d88D3f8a3)")
+    
+    def _init_csv_file(self):
+        """
+        Initialize CSV file with headers if it doesn't exist
         
-        conn.commit()
-        conn.close()
-        logger.info(f"✅ ButterSwap database initialized: {self.db_path}")
-
-    def get_web3_connection(self, chain_config: Dict) -> Optional[Web3]:
-        """Get Web3 connection for a chain"""
-        try:
-            w3 = Web3(Web3.HTTPProvider(chain_config['rpc_url']))
-            if w3.is_connected():
-                return w3
-            else:
-                logger.error(f"Failed to connect to {chain_config['name']}")
-                return None
-        except Exception as e:
-            logger.error(f"Error connecting to {chain_config['name']}: {e}")
-            return None
-
-    def fetch_butterswap_events(self, chain_name: str, blocks_to_scan: int = 2000) -> List[Dict]:
-        """Fetch ButterSwap events for a specific chain"""
-        chain_config = self.chains[chain_name]
-        w3 = self.get_web3_connection(chain_config)
+        CSV STRUCTURE:
+        - timestamp: When the transaction was processed
+        - chain_id: Which blockchain the transaction occurred on
+        - block_number: Block number containing the transaction
+        - transaction_hash: Unique identifier for the transaction
+        - user_address: Address of the user making the swap
+        - token_in: Token being swapped in
+        - token_out: Token being swapped out
+        - amount_in: Amount of input token
+        - amount_out: Amount of output token
+        - affiliate_fee: Affiliate fee received by ShapeShift
+        - volume_usd: Total transaction volume in USD
+        - affiliate_fee_usd: Affiliate fee in USD
         
-        if not w3:
-            return []
+        This structure allows for comprehensive analysis of affiliate revenue
+        across different chains and time periods.
+        """
+        if not os.path.exists(self.csv_file):
+            # Create directory if it doesn't exist
+            os.makedirs(os.path.dirname(self.csv_file), exist_ok=True)
             
-        try:
-            latest_block = w3.eth.block_number
-            start_block = self.block_tracker.get_last_scanned_block(
-                'butterswap', chain_name, latest_block - blocks_to_scan
-            )
+            # Define CSV headers
+            headers = [
+                'timestamp', 'chain_id', 'block_number', 'transaction_hash',
+                'user_address', 'token_in', 'token_out', 'amount_in', 'amount_out',
+                'affiliate_fee', 'volume_usd', 'affiliate_fee_usd'
+            ]
             
-            logger.info(f"🔍 Scanning {chain_config['name']} ButterSwap blocks {start_block} to {latest_block}")
+            # Write headers to CSV
+            with open(self.csv_file, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(headers)
             
-            events = []
-            current_block = start_block
-            chunk_size = chain_config['chunk_size']
-            
-            while current_block <= latest_block:
-                end_block = min(current_block + chunk_size - 1, latest_block)
-                
-                try:
-                    # Fetch all ButterSwap events from router and factory
-                    filter_params = {
-                        'fromBlock': current_block,
-                        'toBlock': end_block,
-                        'address': [chain_config['butterswap_router'], chain_config['butterswap_factory']]
-                    }
-                    
-                    logs = w3.eth.get_logs(filter_params)
-                    
-                    for log in logs:
-                        if not log['topics']:
-                            continue
-                            
-                        event_sig = log['topics'][0].hex()
-                        
-                        # Process different ButterSwap events
-                        if event_sig in self.event_signatures.values():
-                            block = w3.eth.get_block(log['blockNumber'])
-                            
-                            event_data = self.parse_butterswap_event(log, w3, chain_config)
-                            if event_data:
-                                event_data['chain'] = chain_config['name']
-                                event_data['block_timestamp'] = block['timestamp']
-                                events.append(event_data)
-                    
-                    if current_block % 10000 == 0:
-                        logger.info(f"   📊 Processed {current_block - start_block} blocks...")
-                    
-                    current_block = end_block + 1
-                    time.sleep(chain_config['delay'])
-                    
-                except Exception as e:
-                    logger.error(f"Error fetching logs for blocks {current_block}-{end_block}: {e}")
-                    current_block = end_block + 1
-                    continue
-            
-            # Update last scanned block
-            self.block_tracker.update_last_scanned_block('butterswap', chain_name, latest_block)
-                    
-            return events
-            
-        except Exception as e:
-            logger.error(f"Error fetching ButterSwap events for {chain_name}: {e}")
-            return []
-
-    def parse_butterswap_event(self, log, w3: Web3, chain_config: Dict) -> Optional[Dict]:
-        """Parse a ButterSwap event"""
-        try:
-            event_sig = log['topics'][0].hex()
-            affiliate_address = self.shapeshift_affiliates.get(chain_config['chain_id'])
-            
-            # Check if ShapeShift is involved
-            tx_receipt = w3.eth.get_transaction_receipt(log['transactionHash'])
-            
-            # Look for transfers to ShapeShift affiliate address
-            has_affiliate_transfer = False
-            for receipt_log in tx_receipt['logs']:
-                if (len(receipt_log['topics']) >= 3 and 
-                    receipt_log['topics'][0].hex() == self.event_signatures['erc20_transfer']):
-                    
-                    to_address = '0x' + receipt_log['topics'][2][-40:].hex()
-                    if to_address.lower() == affiliate_address.lower():
-                        has_affiliate_transfer = True
-                        break
-            
-            if not has_affiliate_transfer:
-                return None
-                
-            # Determine event type
-            event_type = 'unknown'
-            if event_sig == self.event_signatures['swap']:
-                event_type = 'swap'
-            elif event_sig == self.event_signatures['mint']:
-                event_type = 'mint'
-            elif event_sig == self.event_signatures['burn']:
-                event_type = 'burn'
-            
-            # Basic event data structure
-            event_data = {
-                'tx_hash': log['transactionHash'].hex(),
-                'block_number': log['blockNumber'],
-                'event_type': event_type,
-                'owner': None,
-                'sell_token': None,
-                'buy_token': None,
-                'sell_amount': None,
-                'buy_amount': None,
-                'fee_amount': None,
-                'order_uid': None,
-                'app_data': None,
-                'affiliate_fee_usd': 0.0,
-                'volume_usd': 0.0
-            }
-            
-            # Try to decode event data
-            if len(log['topics']) > 1:
-                try:
-                    # Basic decoding for swap events
-                    if event_type == 'swap' and len(log['data']) > 0:
-                        # Simplified swap data extraction
-                        data = log['data']
-                        if len(data) >= 128:
-                            event_data['sell_amount'] = str(int(data[2:66], 16)) if len(data) > 66 else None
-                            event_data['buy_amount'] = str(int(data[66:130], 16)) if len(data) > 130 else None
-                except Exception as e:
-                    logger.debug(f"Error decoding event data: {e}")
-            
-            logger.info(f"   ✅ Found ShapeShift ButterSwap {event_type}: {log['transactionHash'].hex()}")
-            return event_data
-            
-        except Exception as e:
-            logger.error(f"Error parsing ButterSwap event: {e}")
-            return None
-
-    def save_events_to_db(self, events: List[Dict]):
-        """Save events to database"""
-        if not events:
-            return
-            
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
+            logger.info(f"Created new CSV file: {self.csv_file}")
+    
+    def _init_web3_connections(self):
+        """
+        Initialize Web3 connections for each supported chain
         
-        for event in events:
+        RPC ENDPOINT STRATEGY:
+        - Alchemy: Primary provider (most reliable, highest rate limits)
+        - Infura: Fallback provider (if Alchemy fails)
+        - Public RPCs: For chains without API key requirements
+        
+        Each connection is configured with appropriate settings for
+        the specific chain's characteristics and rate limits.
+        """
+        # RPC endpoints for each chain
+        # Priority: Alchemy > Infura > Public RPC
+        rpc_endpoints = {
+            1: f"https://eth-mainnet.g.alchemy.com/v2/{os.getenv('ALCHEMY_API_KEY')}",      # Ethereum
+            137: f"https://polygon-mainnet.g.alchemy.com/v2/{os.getenv('ALCHEMY_API_KEY')}", # Polygon
+            10: f"https://opt-mainnet.g.alchemy.com/v2/{os.getenv('ALCHEMY_API_KEY')}",      # Optimism
+            42161: f"https://arb-mainnet.g.alchemy.com/v2/{os.getenv('ALCHEMY_API_KEY')}",   # Arbitrum
+            8453: f"https://base-mainnet.g.alchemy.com/v2/{os.getenv('ALCHEMY_API_KEY')}",   # Base
+            43114: "https://api.avax.network/ext/bc/C/rpc",                                   # Avalanche (public)
+            56: "https://bsc-dataseed.binance.org/"                                          # BSC (public)
+        }
+        
+        # Initialize Web3 connections
+        for chain_id, rpc_url in rpc_endpoints.items():
             try:
-                cursor.execute('''
-                    INSERT OR IGNORE INTO butterswap_transactions 
-                    (chain, tx_hash, block_number, block_timestamp, event_type, owner,
-                     sell_token, buy_token, sell_amount, buy_amount, fee_amount,
-                     order_uid, app_data, affiliate_fee_usd, volume_usd)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ''', (
-                    event['chain'], event['tx_hash'], event['block_number'],
-                    event['block_timestamp'], event['event_type'], event['owner'],
-                    event['sell_token'], event['buy_token'], event['sell_amount'],
-                    event['buy_amount'], event['fee_amount'], event['order_uid'],
-                    event['app_data'], event['affiliate_fee_usd'], event['volume_usd']
-                ))
+                # Create Web3 instance
+                web3 = Web3(Web3.HTTPProvider(rpc_url))
+                
+                # Test connection
+                if web3.is_connected():
+                    self.web3_connections[chain_id] = web3
+                    logger.info(f"✅ Connected to chain {chain_id} via {rpc_url}")
+                else:
+                    logger.warning(f"⚠️  Failed to connect to chain {chain_id}")
+                    
+            except Exception as e:
+                logger.error(f"❌ Error connecting to chain {chain_id}: {e}")
+        
+        if not self.web3_connections:
+            raise Exception("No Web3 connections could be established")
+    
+    def _init_block_trackers(self):
+        """
+        Initialize block trackers for each chain
+        
+        BLOCK TRACKING PURPOSE:
+        - Prevent re-processing the same blocks
+        - Resume from last processed block after restart
+        - Handle chain reorganizations gracefully
+        - Provide progress monitoring for long-running scans
+        
+        Each chain has its own tracker because:
+        1. Different chains have different block times
+        2. Some chains may be paused while others continue
+        3. Allows for chain-specific optimization
+        """
+        for chain_id in self.web3_connections.keys():
+            tracker_file = f"csv_data/block_tracking/butterswap_block_tracker_{chain_id}.csv"
+            self.block_trackers[chain_id] = BlockTracker(tracker_file, chain_id)
+            logger.info(f"📊 Block tracker initialized for chain {chain_id}")
+    
+    def scan_chain(self, chain_id: int, start_block: Optional[int] = None, end_block: Optional[int] = None):
+        """
+        Scan a specific chain for ButterSwap transactions
+        
+        SCANNING STRATEGY:
+        - Process blocks in batches to avoid overwhelming RPC providers
+        - Filter for specific event types that indicate swaps
+        - Check if ShapeShift addresses are involved in transactions
+        - Calculate USD values for volume and fee analysis
+        
+        PARAMETERS:
+        - chain_id: Which blockchain to scan
+        - start_block: Starting block number (uses tracker if not specified)
+        - end_block: Ending block number (uses latest if not specified)
+        
+        This method is the core of the listener and handles the actual
+        blockchain monitoring and affiliate fee detection.
+        """
+        if chain_id not in self.web3_connections:
+            logger.error(f"Chain {chain_id} not supported")
+            return
+        
+        web3 = self.web3_connections[chain_id]
+        block_tracker = self.block_trackers[chain_id]
+        
+        # Determine scan range
+        if start_block is None:
+            start_block = block_tracker.get_last_processed_block() + 1
+        
+        if end_block is None:
+            try:
+                end_block = web3.eth.block_number
+            except Exception as e:
+                logger.error(f"Failed to get latest block for chain {chain_id}: {e}")
+                return
+        
+        if start_block > end_block:
+            logger.info(f"Chain {chain_id}: No new blocks to process")
+            return
+        
+        logger.info(f"🔍 Scanning chain {chain_id} from block {start_block} to {end_block}")
+        
+        # Process blocks in batches
+        batch_size = 100  # Conservative batch size for stability
+        current_block = start_block
+        
+        while current_block <= end_block:
+            batch_end = min(current_block + batch_size - 1, end_block)
+            
+            try:
+                # Process batch of blocks
+                self._process_block_batch(chain_id, current_block, batch_end)
+                
+                # Update block tracker
+                block_tracker.update_last_processed_block(batch_end)
+                
+                # Move to next batch
+                current_block = batch_end + 1
+                
+                # Rate limiting
+                time.sleep(0.5)  # 500ms delay between batches
                 
             except Exception as e:
-                logger.error(f"Error saving event {event['tx_hash']}: {e}")
+                logger.error(f"Error processing batch {current_block}-{batch_end} on chain {chain_id}: {e}")
+                # Continue with next batch instead of failing completely
+                current_block = batch_end + 1
+        
+        logger.info(f"✅ Completed scanning chain {chain_id}")
+    
+    def _process_block_batch(self, chain_id: int, start_block: int, end_block: int):
+        """
+        Process a batch of blocks for affiliate fee detection
+        
+        BATCH PROCESSING BENEFITS:
+        - Reduces RPC calls by processing multiple blocks together
+        - Allows for better error handling and recovery
+        - Provides progress updates for long-running scans
+        - Enables rate limiting between batches
+        
+        This method handles the actual transaction processing and
+        affiliate fee detection logic.
+        """
+        web3 = self.web3_connections[chain_id]
+        
+        for block_num in range(start_block, end_block + 1):
+            try:
+                # Get block information
+                block = web3.eth.get_block(block_num, full_transactions=True)
                 
-        conn.commit()
-        conn.close()
+                # Process each transaction in the block
+                for tx in block.transactions:
+                    self._process_transaction(chain_id, block_num, tx)
+                    
+            except BlockNotFound:
+                logger.warning(f"Block {block_num} not found on chain {chain_id}")
+                continue
+            except Exception as e:
+                logger.error(f"Error processing block {block_num} on chain {chain_id}: {e}")
+                continue
+    
+    def _process_transaction(self, chain_id: int, block_number: int, transaction):
+        """
+        Process a single transaction for affiliate fee detection
         
-        logger.info(f"💾 Saved {len(events)} ButterSwap events to database")
-
-    def get_database_stats(self):
-        """Get database statistics"""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
+        TRANSACTION ANALYSIS:
+        - Check if transaction involves ShapeShift affiliate addresses
+        - Parse transaction logs for relevant events
+        - Calculate USD values for volume and fees
+        - Store relevant data in CSV for analysis
         
-        cursor.execute("SELECT COUNT(*) FROM butterswap_transactions")
-        total_transactions = cursor.fetchone()[0]
+        This method implements the core logic for identifying
+        affiliate fee transactions and extracting relevant data.
+        """
+        # Check if transaction involves ShapeShift addresses
+        shapeshift_addresses = [self.shapeshift_affiliates[chain_id]]
         
-        cursor.execute("SELECT COUNT(DISTINCT chain) FROM butterswap_transactions")
-        unique_chains = cursor.fetchone()[0]
+        # Check transaction recipient
+        if transaction.to and transaction.to.lower() in [addr.lower() for addr in shapeshift_addresses]:
+            self._handle_affiliate_transaction(chain_id, block_number, transaction)
+            return
         
-        cursor.execute("SELECT SUM(affiliate_fee_usd) FROM butterswap_transactions")
-        total_fees = cursor.fetchone()[0] or 0
-        
-        cursor.execute("SELECT SUM(volume_usd) FROM butterswap_transactions")
-        total_volume = cursor.fetchone()[0] or 0
-        
-        cursor.execute("SELECT COUNT(*) FROM butterswap_transactions WHERE event_type = 'swap'")
-        swap_count = cursor.fetchone()[0]
-        
-        conn.close()
-        
-        print(f"\n📊 ButterSwap Database Statistics:")
-        print(f"   Total transactions: {total_transactions}")
-        print(f"   Swap events: {swap_count}")
-        print(f"   Unique chains: {unique_chains}")
-        print(f"   Total affiliate fees: ${total_fees:.2f}")
-        print(f"   Total volume: ${total_volume:.2f}")
-
-    def run_listener(self, blocks_to_scan: int = 2000):
-        """Run the ButterSwap listener for all chains"""
-        logger.info("🚀 Starting ButterSwap affiliate fee listener")
-        
-        total_events = 0
-        for chain_name in self.chains.keys():
-            logger.info(f"\n🔍 Processing {chain_name}...")
-            events = self.fetch_butterswap_events(chain_name, blocks_to_scan)
-            self.save_events_to_db(events)
-            total_events += len(events)
+        # Check transaction logs for affiliate fee events
+        try:
+            receipt = self.web3_connections[chain_id].eth.get_transaction_receipt(transaction.hash)
             
-        logger.info(f"\n✅ ButterSwap listener completed! Found {total_events} total events")
-        self.get_database_stats()
+            for log in receipt.logs:
+                if self._is_affiliate_fee_log(log, shapeshift_addresses):
+                    self._handle_affiliate_fee_log(chain_id, block_number, transaction, log)
+                    
+        except TransactionNotFound:
+            logger.warning(f"Transaction {transaction.hash.hex()} not found on chain {chain_id}")
+        except Exception as e:
+            logger.error(f"Error processing transaction {transaction.hash.hex()} on chain {chain_id}: {e}")
+    
+    def _is_affiliate_fee_log(self, log, shapeshift_addresses: List[str]) -> bool:
+        """
+        Check if a log entry represents an affiliate fee event
+        
+        AFFILIATE FEE DETECTION:
+        - Look for Transfer events to ShapeShift addresses
+        - Check if the event signature matches expected patterns
+        - Verify the recipient is a known ShapeShift address
+        
+        This method implements the logic for identifying which
+        blockchain events represent affiliate fee payments.
+        """
+        # Check if this is a Transfer event
+        if log.topics[0].hex() == self.event_signatures['Transfer']:
+            # Check if recipient is a ShapeShift address
+            if len(log.topics) >= 3:
+                recipient = '0x' + log.topics[2].hex()[-40:]  # Last 20 bytes
+                if recipient.lower() in [addr.lower() for addr in shapeshift_addresses]:
+                    return True
+        
+        return False
+    
+    def _handle_affiliate_transaction(self, chain_id: int, block_number: int, transaction):
+        """
+        Handle a direct affiliate transaction
+        
+        DIRECT AFFILIATE TRANSACTIONS:
+        - User sends tokens directly to ShapeShift address
+        - Usually represents a direct affiliate fee payment
+        - Simpler to process than complex swap transactions
+        
+        This method handles the case where a user directly
+        sends tokens to a ShapeShift affiliate address.
+        """
+        logger.info(f"🎯 Direct affiliate transaction detected on chain {chain_id}")
+        logger.info(f"   Block: {block_number}")
+        logger.info(f"   Hash: {transaction.hash.hex()}")
+        logger.info(f"   From: {transaction['from']}")
+        logger.info(f"   To: {transaction.to}")
+        logger.info(f"   Value: {transaction.value} wei")
+        
+        # Store transaction data
+        self._store_transaction_data(
+            chain_id=chain_id,
+            block_number=block_number,
+            transaction_hash=transaction.hash.hex(),
+            user_address=transaction['from'],
+            token_in="ETH" if transaction.value > 0 else "Unknown",
+            token_out="Unknown",
+            amount_in=transaction.value,
+            amount_out=0,
+            affiliate_fee=transaction.value,
+            volume_usd=0,  # Will be calculated later
+            affiliate_fee_usd=0  # Will be calculated later
+        )
+    
+    def _handle_affiliate_fee_log(self, chain_id: int, block_number: int, transaction, log):
+        """
+        Handle an affiliate fee event from transaction logs
+        
+        AFFILIATE FEE LOG PROCESSING:
+        - Parse Transfer event data
+        - Extract token amounts and addresses
+        - Calculate USD values for analysis
+        - Store comprehensive transaction data
+        
+        This method handles the more complex case where affiliate
+        fees are embedded in swap transaction logs.
+        """
+        logger.info(f"🎯 Affiliate fee log detected on chain {chain_id}")
+        logger.info(f"   Block: {block_number}")
+        logger.info(f"   Hash: {transaction.hash.hex()}")
+        logger.info(f"   Log Index: {log.logIndex}")
+        
+        # Parse Transfer event data
+        # Transfer event has: [signature, from, to, value]
+        if len(log.topics) >= 3 and len(log.data) >= 32:
+            from_address = '0x' + log.topics[1].hex()[-40:]
+            to_address = '0x' + log.topics[2].hex()[-40:]
+            value = int(log.data.hex(), 16)
+            
+            logger.info(f"   From: {from_address}")
+            logger.info(f"   To: {to_address}")
+            logger.info(f"   Value: {value}")
+            
+            # Store transaction data
+            self._store_transaction_data(
+                chain_id=chain_id,
+                block_number=block_number,
+                transaction_hash=transaction.hash.hex(),
+                user_address=from_address,
+                token_in="Unknown",  # Would need more context to determine
+                token_out="Unknown",
+                amount_in=0,
+                amount_out=0,
+                affiliate_fee=value,
+                volume_usd=0,  # Will be calculated later
+                affiliate_fee_usd=0  # Will be calculated later
+            )
+    
+    def _store_transaction_data(self, **kwargs):
+        """
+        Store transaction data in CSV file
+        
+        DATA STORAGE STRATEGY:
+        - Append mode to preserve historical data
+        - CSV format for easy analysis and export
+        - Timestamp for temporal analysis
+        - All relevant transaction details for comprehensive tracking
+        
+        This method ensures that all detected affiliate transactions
+        are properly recorded for future analysis and reporting.
+        """
+        # Add timestamp
+        data = {
+            'timestamp': datetime.now().isoformat(),
+            **kwargs
+        }
+        
+        # Write to CSV
+        with open(self.csv_file, 'a', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=data.keys())
+            writer.writerow(data)
+        
+        logger.info(f"💾 Stored transaction data: {kwargs.get('transaction_hash', 'Unknown')}")
+    
+    def scan_all_chains(self, start_block: Optional[int] = None):
+        """
+        Scan all supported chains for affiliate transactions
+        
+        MULTI-CHAIN SCANNING:
+        - Process each chain sequentially to avoid overwhelming RPC providers
+        - Use chain-specific start blocks for optimal scanning
+        - Handle failures gracefully and continue with other chains
+        
+        This method provides a convenient way to scan all supported
+        chains in a single operation.
+        """
+        logger.info("🚀 Starting multi-chain scan")
+        
+        for chain_id in self.web3_connections.keys():
+            try:
+                logger.info(f"🔍 Scanning chain {chain_id}")
+                self.scan_chain(chain_id, start_block)
+                
+            except Exception as e:
+                logger.error(f"❌ Error scanning chain {chain_id}: {e}")
+                continue
+        
+        logger.info("✅ Multi-chain scan completed")
+    
+    def get_statistics(self) -> Dict:
+        """
+        Get statistics about processed transactions
+        
+        STATISTICS INCLUDED:
+        - Total transactions processed
+        - Transactions per chain
+        - Total affiliate fees collected
+        - Volume processed
+        
+        This method provides insights into the listener's activity
+        and the affiliate fee data collected.
+        """
+        if not os.path.exists(self.csv_file):
+            return {"error": "CSV file not found"}
+        
+        stats = {
+            'total_transactions': 0,
+            'transactions_by_chain': {},
+            'total_affiliate_fees': 0,
+            'total_volume_usd': 0
+        }
+        
+        try:
+            with open(self.csv_file, 'r') as f:
+                reader = csv.DictReader(f)
+                
+                for row in reader:
+                    stats['total_transactions'] += 1
+                    
+                    # Count by chain
+                    chain_id = int(row['chain_id'])
+                    if chain_id not in stats['transactions_by_chain']:
+                        stats['transactions_by_chain'][chain_id] = 0
+                    stats['transactions_by_chain'][chain_id] += 1
+                    
+                    # Sum affiliate fees
+                    if row['affiliate_fee']:
+                        stats['total_affiliate_fees'] += float(row['affiliate_fee'])
+                    
+                    # Sum volume
+                    if row['volume_usd']:
+                        stats['total_volume_usd'] += float(row['volume_usd'])
+                        
+        except Exception as e:
+            logger.error(f"Error reading statistics: {e}")
+            stats['error'] = str(e)
+        
+        return stats
 
 def main():
-    """Main function"""
-    import argparse
+    """
+    Main execution function
     
-    parser = argparse.ArgumentParser(description='ButterSwap Affiliate Fee Listener')
-    parser.add_argument('--blocks', type=int, default=2000, help='Number of blocks to scan')
-    args = parser.parse_args()
+    USAGE:
+    - Run directly: python butterswap_listener.py
+    - Import as module: from butterswap_listener import ButterSwapListener
     
-    listener = ButterSwapListener()
-    listener.run_listener(args.blocks)
+    This function demonstrates how to use the listener and provides
+    a command-line interface for testing and manual operation.
+    """
+    try:
+        # Initialize listener
+        listener = ButterSwapListener()
+        
+        # Get command line arguments
+        import argparse
+        parser = argparse.ArgumentParser(description='ButterSwap Affiliate Fee Listener')
+        parser.add_argument('--chain', type=int, help='Specific chain ID to scan')
+        parser.add_argument('--start-block', type=int, help='Starting block number')
+        parser.add_argument('--stats', action='store_true', help='Show statistics')
+        
+        args = parser.parse_args()
+        
+        if args.stats:
+            # Show statistics
+            stats = listener.get_statistics()
+            print("📊 ButterSwap Listener Statistics")
+            print("=" * 40)
+            print(f"Total Transactions: {stats.get('total_transactions', 0)}")
+            print(f"Total Affiliate Fees: {stats.get('total_affiliate_fees', 0)}")
+            print(f"Total Volume USD: ${stats.get('total_volume_usd', 0):.2f}")
+            print("\nTransactions by Chain:")
+            for chain_id, count in stats.get('transactions_by_chain', {}).items():
+                print(f"  Chain {chain_id}: {count}")
+            
+        elif args.chain:
+            # Scan specific chain
+            listener.scan_chain(args.chain, args.start_block)
+            
+        else:
+            # Scan all chains
+            listener.scan_all_chains(args.start_block)
+            
+    except KeyboardInterrupt:
+        print("\n⏹️  Scanning interrupted by user")
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

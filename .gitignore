@@ -1,7 +1,8 @@
 # Environment variables
 .env
-.env.local
-.env.production
+.venv
+venv/
+env/
 
 # Python
 __pycache__/
@@ -26,40 +27,112 @@ wheels/
 *.egg
 MANIFEST
 
-# Virtual environments
-.venv/
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# celery beat schedule file
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
 venv/
 ENV/
-env/
+env.bak/
+venv.bak/
 
-# Database files
-*.db
-*.db-journal
-*.sqlite
-*.sqlite3
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# CSV data files (keep structure, ignore actual data)
+csv_data/transactions/*.csv
+csv_data/block_tracking/*.csv
+csv_data/consolidated/*.csv
+csv_data/reports/*.csv
 
 # Logs
 logs/
 *.log
-
-# Data files
-data/
-*.csv
-*.json
-
-# Docker
-.dockerignore
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
 # Temporary files
 *.tmp
-*.temp 
+*.temp
+*.bak
+*.backup 

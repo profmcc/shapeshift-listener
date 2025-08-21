@@ -16,17 +16,17 @@ load_dotenv()
 # Add project root to path for module imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from listeners.portals_listener import PortalsListener
+from listeners.portals_listener_final import FinalPortalsListener
 
 def test_single_portals_transaction():
     """
-    Initializes the PortalsListener, processes a single transaction,
+    Initializes the FinalPortalsListener, processes a single transaction,
     and verifies that the data is correctly stored in the database.
     """
     print("🚀 Starting Portals single transaction test...")
 
     # Initialize the listener
-    listener = PortalsListener()
+    listener = FinalPortalsListener()
     
     # Configuration for the 'ethereum' chain
     chain_name = 'ethereum'
@@ -57,6 +57,14 @@ def test_single_portals_transaction():
     # Detect tokens
     token_info = listener.detect_portals_tokens(w3, receipt, chain_config)
     
+    print(f"\n🔍 Token detection results:")
+    print(f"  Input token: {token_info['input_token']}")
+    print(f"  Input amount: {token_info['input_amount']}")
+    print(f"  Output token: {token_info['output_token']}")
+    print(f"  Output amount: {token_info['output_amount']}")
+    print(f"  Affiliate token: {token_info['affiliate_token']}")
+    print(f"  Affiliate amount: {token_info['affiliate_amount']}")
+    
     # Prepare event data
     block = w3.eth.get_block(receipt['blockNumber'])
     event_data = {
@@ -77,6 +85,12 @@ def test_single_portals_transaction():
         'affiliate_fee_usd': 0.0,
         'volume_usd': 0.0
     }
+    
+    print(f"\n📝 Event data to save:")
+    for key, value in event_data.items():
+        print(f"  {key}: {value}")
+    
+    print(f"\n💾 Database path: {listener.db_path}")
     
     # Save the event to the database
     listener.save_events_to_db([event_data])

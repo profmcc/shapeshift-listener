@@ -1,0 +1,2 @@
+id,tx_id,date,height,from_address,to_address,affiliate_address,affiliate_fee_basis_points,affiliate_fee_amount,affiliate_fee_usd,from_asset,to_asset,from_amount,to_amount,from_amount_usd,to_amount_usd,volume_usd,swap_path,is_streaming_swap,liquidity_fee,swap_slip,timestamp,created_at
+1,,1753986729236094726,22198434,15AqzQtgxjYdsucTVY8JM5eUaD7p83GvJp,thor122h9hlrugzdny9ct95z6g7afvpzu34s73uklju,ss,0,0.0,0.0,BTC.BTC,ETH.ETH,0.00850832,3.99297655,0.0,0.0,0.0,BTC.BTC -> ETH.ETH,0,0.73251031,10,0,1753989547

@@ -1,0 +1,631 @@
+{
+  "july_2025_analysis": {
+    "date_range": {
+      "start": "2025-07-01T00:00:00",
+      "end": "2025-07-31T00:00:00"
+    },
+    "top_pairs": {
+      "TCY/USDC": 1797.85410576,
+      "DOGE/BTC": 1464.0,
+      "FOX/USDC": 923.97883789,
+      "FOX/ATOM": 876.51716809,
+      "RUNE/LTC": 718.0,
+      "DOGE/ETH": 701.0,
+      "ATOM/BTC": 305.0,
+      "USDT/BTC": 248.764074,
+      "RUNE/ETH": 248.0,
+      "ETH/BTC": 146.02541557,
+      "LTC/USDT": 94.2482,
+      "USDC/LTC": 50.0,
+      "RUNE/BTC": 48.5,
+      "DOGE/TCY": 36.5,
+      "ETH/USDC": 21.404927563196214,
+      "LTC/BTC": 10.89943746,
+      "AVAX/LTC": 4.1745,
+      "BCH/ETH": 2.69087989,
+      "ETH/WETH": 2.118210525462999,
+      "LTC/AVAX": 1.8177
+    },
+    "affiliate_breakdown": {
+      "TCY/ETH": {
+        "8573\n\u2026\n7045\n22,170,485\nthor\n\u2026\nm4sl\n0x9b\n\u2026\naB06": 0.0,
+        "61A1\n\u2026\n2D33\n22,137,434\nthor\n\u2026\nctkn\n0x4E\n\u2026\nbB0C": 0.0,
+        "DF56\n\u2026\n8FBF\n22,098,858\nthor\n\u2026\nm4sl\n0x9b\n\u2026\naB06": 0.0,
+        "9FC7\n\u2026\n8966\n22,095,448\nthor\n\u2026\nm4sl\n0x9b\n\u2026\naB06": 0.0,
+        "2F68\n\u2026\n7FDF\n22,084,537\nthor\n\u2026\nm4sl\n0x9b\n\u2026\naB06": 0.0,
+        "FC4B\n\u2026\n622B\n22,054,491\nthor\n\u2026\nm4sl\n0x9b\n\u2026\naB06": 0.0,
+        "8D6E\n\u2026\nBE72\n22,048,309\nthor\n\u2026\np3pp\n0x69\n\u2026\naFef": 0.0
+      },
+      "DOGE/BTC": {
+        "2A2E\n\u2026\nE937\n22,169,927\ndc8u\n\u2026\neunt\nbc1q\n\u2026\nxwt2": 894.0,
+        "DEC2\n\u2026\n4BFE\n22,163,179\ndaks\n\u2026\nfdfr\nbc1q\n\u2026\n70q4": 0.0,
+        "CFD3\n\u2026\nA0C1\n22,115,753\ndacl\n\u2026\ndfl5\nbc1q\n\u2026\n3c0q": 0.0,
+        "0BD8\n\u2026\n4E60\n22,074,725\nd9rk\n\u2026\nvbkf\nbc1q\n\u2026\npwel": 0.0,
+        "50CC\n\u2026\n96A4\n22,073,545\nd8ka\n\u2026\nfgcc\nbc1q\n\u2026\n63ux": 0.0,
+        "FFB7\n\u2026\nD2BF\n22,073,302\ndmxn\n\u2026\n6zup\nbc1q\n\u2026\n63ux": 570.0
+      },
+      "RUNE/LTC": {
+        "939A\n\u2026\n680D\n22,168,561\nthor\n\u2026\n3ajq\nltc1\n\u2026\nw4hw": 718.0
+      },
+      "BTC/CBBTC": {
+        "A036\n\u2026\n6C0C\n22,167,784\nbc1q\n\u2026\nlrly\n0x88\n\u2026\n1090": 0.0385
+      },
+      "BTC/BNB": {
+        "270B\n\u2026\nFAF2\n22,167,126\n36gl\n\u2026\nufri\n0xFF\n\u2026\nf82f": 0.00176597,
+        "6A48\n\u2026\n92E7\n22,163,928\n3fpg\n\u2026\nkt4b\n0xFF\n\u2026\nf82f": 0.00848682
+      },
+      "LTC/AVAX": {
+        "C62F\n\u2026\n4C75\n22,165,890\nltc1\n\u2026\n4ehv\n0x66\n\u2026\n25b9": 0.8827,
+        "DFB8\n\u2026\nD39D\n22,110,010\nltc1\n\u2026\np79d\n0x40\n\u2026\n5f4a": 0.935
+      },
+      "USDC/DOGE": {
+        "AB93\n\u2026\n7A15\n22,165,853\n0xca\n\u2026\n2f11\nDSVF\n\u2026\n6UDZ": 0.0,
+        "DCE2\n\u2026\n5E19\n22,080,823\n0xca\n\u2026\n2f11\nDR7Z\n\u2026\n6Qxm": 0.0
+      },
+      "BNB/RUNE": {
+        "8C24\n\u2026\n9D82\n22,156,996\n0xa4\n\u2026\n29c8\nthor\n\u2026\n420n": 0.178
+      },
+      "TCY/LTC": {
+        "5CD7\n\u2026\nE99E\n22,156,179\nthor\n\u2026\n3ajq\nltc1\n\u2026\n5jvf": 0.0
+      },
+      "RUNE/BTC": {
+        "FA2D\n\u2026\n6B4E\n22,150,831\nthor\n\u2026\nu9fq\nbc1q\n\u2026\nggj7": 0.0,
+        "1121\n\u2026\nEE9D\n22,141,497\nthor\n\u2026\nk0fh\nbc1q\n\u2026\nl47w": 38.2,
+        "B7F8\n\u2026\n6049\n22,042,032\nthor\n\u2026\np28e\nbc1q\n\u2026\nj0e9": 10.3
+      },
+      "BTC/USDC": {
+        "1A9C\n\u2026\nAB32\n22,150,320\n37ft\n\u2026\n99dm\n0xc1\n\u2026\n43A4": 0.8009,
+        "2C5D\n\u2026\nBDA0\n22,150,193\n37ft\n\u2026\n99dm\n0xc1\n\u2026\n43A4": 0.199,
+        "AB8C\n\u2026\n1ADF\n22,119,624\n14zk\n\u2026\nypq6\n0xca\n\u2026\ne834": 0.00268863,
+        "8FE8\n\u2026\n4A30\n22,082,645\nbc1q\n\u2026\nywkh\n0x01\n\u2026\nE38b": 0.00846045,
+        "69B3\n\u2026\nE671\n22,080,801\nbc1q\n\u2026\nhyv5\n0xbf\n\u2026\n3c3c": 0.104,
+        "A7CC\n\u2026\n79B1\n22,043,040\n34ib\n\u2026\nsusi\n0x38\n\u2026\nCAEC": 0.005
+      },
+      "TCY/BTC": {
+        "276F\n\u2026\n518B\n22,149,400\nthor\n\u2026\nyf9h\nbc1q\n\u2026\nk67p": 0.0,
+        "6119\n\u2026\n2672\n22,137,403\nthor\n\u2026\nctkn\nbc1q\n\u2026\nuqyt": 0.0,
+        "E1AA\n\u2026\n6B67\n22,072,726\nthor\n\u2026\ntlhj\nbc1q\n\u2026\n9q6g": 0.0,
+        "E900\n\u2026\n7589\n22,041,648\nthor\n\u2026\np28e\nbc1q\n\u2026\nj0e9": 0.0
+      },
+      "BCH/LTC": {
+        "3DE1\n\u2026\n1814\n22,146,378\nqzq6\n\u2026\nqqy7\nltc1\n\u2026\n4fr9": 0.1346
+      },
+      "ETH/BTC": {
+        "DF1A\n\u2026\n2F20\n22,144,736\n0x72\n\u2026\nbcbe\nbc1q\n\u2026\ncuw9": 0.0227,
+        "9FC2\n\u2026\n4907\n22,123,701\n0x7e\n\u2026\n379f\nbc1q\n\u2026\ndzac": 39.8471,
+        "5027\n\u2026\nA3D8\n22,123,572\n0x26\n\u2026\n56e3\nbc1q\n\u2026\ngl27": 0.15019268,
+        "6033\n\u2026\nE9CF\n22,111,597\n0x95\n\u2026\na5c2\nbc1q\n\u2026\n6flm": 29.8783,
+        "F1AB\n\u2026\n0CF4\n22,085,008\n0xa3\n\u2026\nd529\nbc1q\n\u2026\nh3vp": 1.78986753,
+        "EE90\n\u2026\n5E66\n22,078,610\n0x6a\n\u2026\ncba9\nbc1q\n\u2026\nf9z7": 4.426,
+        "DFDC\n\u2026\nB0D6\n22,075,488\n0x11\n\u2026\n8a4f\nbc1q\n\u2026\nwgq9": 49.793,
+        "6C16\n\u2026\nBC16\n22,059,763\n0x3d\n\u2026\ndd3a\n3Aic\n\u2026\nZhzQ": 0.0040165,
+        "A74D\n\u2026\nE272\n22,057,252\n0xad\n\u2026\n5fda\nbc1q\n\u2026\n8yp4": 1.331,
+        "9BDA\n\u2026\nAA37\n22,044,207\n0x48\n\u2026\n1ec5\nbc1q\n\u2026\na2ha": 0.14,
+        "EBC4\n\u2026\n8CFD\n22,040,292\n0x36\n\u2026\n4bbc\nbc1q\n\u2026\nwxfu": 18.63,
+        "1C3A\n\u2026\nFD92\n22,040,243\n0x36\n\u2026\n4bbc\nbc1q\n\u2026\nwxfu": 0.01323886
+      },
+      "BTC/ETH": {
+        "0112\n\u2026\n2460\n22,142,546\nbc1q\n\u2026\ne9zf\n0x28\n\u2026\nE986": 0.00427516,
+        "0241\n\u2026\n03B4\n22,115,310\nbc1q\n\u2026\nsxhu\n0x5d\n\u2026\n818f": 0.8,
+        "1396\n\u2026\nD08B\n22,059,270\nbc1q\n\u2026\nd9gf\n0x77\n\u2026\n98D5": 0.0265,
+        "4F57\n\u2026\n28C8\n22,054,244\n35w8\n\u2026\nkuy3\n0xDA\n\u2026\n7795": 0.03365785
+      },
+      "TCY/USDC": {
+        "2812\n\u2026\nD36E\n22,137,465\nthor\n\u2026\nctkn\n0x4E\n\u2026\nbB0C": 0.0,
+        "9FA9\n\u2026\n88D2\n22,137,363\nthor\n\u2026\nctkn\n0x4E\n\u2026\nbB0C": 804.64428503,
+        "1D6F\n\u2026\nF3C1\n22,050,264\nthor\n\u2026\nctkn\n0x4E\n\u2026\nbB0C": 993.20982073
+      },
+      "TCY/BNB": {
+        "CAAD\n\u2026\n5A79\n22,137,426\nthor\n\u2026\nctkn\n0x4E\n\u2026\nbB0C": 0.0
+      },
+      "BCH/ETH": {
+        "3165\n\u2026\n657A\n22,137,028\nqppa\n\u2026\n7ua8\n0x91\n\u2026\nE3c1": 1.669,
+        "8243\n\u2026\nAA2E\n22,136,706\nqz5t\n\u2026\ng9fq\n0x7E\n\u2026\nB787": 0.9745,
+        "87A0\n\u2026\n4310\n22,079,762\nqqj4\n\u2026\nskkv\n0xAD\n\u2026\n5406": 0.04737989
+      },
+      "BCH/USDT": {
+        "69A9\n\u2026\nAB93\n22,135,557\nqr7f\n\u2026\nylp6\n0x7E\n\u2026\nB787": 0.01
+      },
+      "BTC/RUNE": {
+        "758E\n\u2026\n7D8F\n22,125,598\nbc1q\n\u2026\nqmr9\nthor\n\u2026\nneg4": 0.06027253,
+        "7580\n\u2026\n61E4\n22,125,300\nbc1q\n\u2026\n3au5\nthor\n\u2026\n7xjq": 0.07140522,
+        "548F\n\u2026\n3805\n22,123,028\nbc1q\n\u2026\nvdkn\nthor\n\u2026\n5ezr": 0.06989489,
+        "6F70\n\u2026\nA2B8\n22,114,136\nbc1q\n\u2026\nvfsp\nthor\n\u2026\nmadc": 0.0998752,
+        "C9C1\n\u2026\n2A19\n22,112,698\nbc1q\n\u2026\n2rrr\nthor\n\u2026\nls49": 0.09494875,
+        "A47D\n\u2026\nB69B\n22,110,137\nbc1q\n\u2026\nth86\nthor\n\u2026\nl54l": 0.11984547,
+        "D453\n\u2026\n7AD6\n22,108,301\nbc1q\n\u2026\n8y2h\nthor\n\u2026\nvjdn": 0.07280245,
+        "922E\n\u2026\n4D49\n22,107,802\nbc1q\n\u2026\ne4qt\nthor\n\u2026\nr6u7": 0.10986261,
+        "2B49\n\u2026\n747E\n22,107,245\nbc1q\n\u2026\ndyhj\nthor\n\u2026\n97gm": 0.00059675,
+        "447A\n\u2026\n1E55\n22,106,930\nbc1q\n\u2026\n7z4v\nthor\n\u2026\n97gm": 0.05928383,
+        "4C4D\n\u2026\nD2D6\n22,096,622\nbc1q\n\u2026\n6r3y\nthor\n\u2026\nt2ww": 0.14482042,
+        "2F0E\n\u2026\n0599\n22,095,725\nbc1q\n\u2026\n0gfz\nthor\n\u2026\n2evl": 0.07988672,
+        "CA71\n\u2026\nE3E3\n22,095,037\nbc1q\n\u2026\n9fcd\nthor\n\u2026\nnhlr": 0.1198224,
+        "BFDD\n\u2026\n9A8C\n22,082,491\nbc1q\n\u2026\nllzz\nthor\n\u2026\nz827": 0.03983264,
+        "07DF\n\u2026\nB481\n22,081,240\nbc1q\n\u2026\npjzu\nthor\n\u2026\naxm2": 0.08652796,
+        "74DB\n\u2026\n2066\n22,080,801\nbc1q\n\u2026\nrcpy\nthor\n\u2026\np4sv": 0.04997132,
+        "4229\n\u2026\nBC9E\n22,068,680\nbc1q\n\u2026\n7x9w\nthor\n\u2026\nrssm": 0.06410116,
+        "3CEF\n\u2026\n71D7\n22,067,367\nbc1q\n\u2026\nl8qx\nthor\n\u2026\nus60": 0.04995,
+        "CCEA\n\u2026\nE1F5\n22,066,986\nbc1q\n\u2026\n0qyz\nthor\n\u2026\nhf32": 0.00997
+      },
+      "ATOM/RUNE": {
+        "3D5B\n\u2026\nF657\n22,121,493\ncosm\n\u2026\ndc30\nthor\n\u2026\nchsr": 0.01,
+        "B015\n\u2026\n4173\n22,079,882\ncosm\n\u2026\n5mx0\nthor\n\u2026\nk6al": 0.100402,
+        "82A1\n\u2026\n869E\n22,052,580\ncosm\n\u2026\ng578\nthor\n\u2026\ntv50": 0.6
+      },
+      "RUNE/FOX": {
+        "D62B\n\u2026\nEFAD\n22,111,827\nthor\n\u2026\nklju\n0x90\n\u2026\n51Be": 0.0
+      },
+      "USDC/LTC": {
+        "BD5F\n\u2026\nB07D\n22,110,973\n0x40\n\u2026\n55be\nltc1\n\u2026\n052v": 50.0,
+        "411E\n\u2026\n784D\n22,084,976\n0xca\n\u2026\n2f11\nltc1\n\u2026\n23vd": 0.0
+      },
+      "LTC/BTC": {
+        "8449\n\u2026\nB047\n22,110,727\nmejt\n\u2026\npgwe\nbc1q\n\u2026\nsv67": 4.3784646,
+        "F276\n\u2026\n4DA4\n22,093,122\nlunt\n\u2026\nvvbm\nbc1q\n\u2026\nfecy": 6.52097286
+      },
+      "LTC/RUNE": {
+        "8B22\n\u2026\nAC85\n22,101,210\nltc1\n\u2026\ndg0w\nthor\n\u2026\n6qdz": 0.01
+      },
+      "ETH/LTC": {
+        "8AE9\n\u2026\nCB7E\n22,101,031\n0x32\n\u2026\n89a9\nltc1\n\u2026\ndg0w": 0.0015,
+        "1ED9\n\u2026\n173E\n22,100,454\n0x43\n\u2026\n1c7b\nltc1\n\u2026\nrcxc": 0.0061,
+        "D05D\n\u2026\n59A8\n22,100,336\n0xe3\n\u2026\n80f6\nltc1\n\u2026\n0e9p": 0.01784
+      },
+      "BTC/USDT": {
+        "B43B\n\u2026\n13C0\n22,100,350\nbc1q\n\u2026\ntm36\n0xAB\n\u2026\n43C4": 0.00042168
+      },
+      "AVAX/LTC": {
+        "B3DD\n\u2026\n8650\n22,092,747\n0x18\n\u2026\n35c0\nltc1\n\u2026\nnzk3": 4.1745
+      },
+      "USDT/LTC": {
+        "9636\n\u2026\n9776\n22,092,089\n0xd4\n\u2026\n1a57\nLWP8\n\u2026\niyMu": 0.0
+      },
+      "ETH/BNB": {
+        "36A1\n\u2026\nA9F5\n22,089,364\n0xb7\n\u2026\n98a3\n0xB7\n\u2026\n98a3": 0.01
+      },
+      "AVAX/RUNE": {
+        "3E1D\n\u2026\nC2D9\n22,087,078\n0x3d\n\u2026\ndd3a\nthor\n\u2026\nv3r8": 0.41562759
+      },
+      "USDT/RUNE": {
+        "E279\n\u2026\n1FD8\n22,085,615\n0xbf\n\u2026\n01af\nthor\n\u2026\nkgtf": 0.0
+      },
+      "FOX/USDC": {
+        "40AC\n\u2026\n9CCD\n22,085,519\n0x4a\n\u2026\n89b6\n0x4a\n\u2026\n89b6": 923.97883789
+      },
+      "FOX/BTC": {
+        "EFDC\n\u2026\nC3F6\n22,079,232\n0x47\n\u2026\nf61b\nbc1q\n\u2026\nrz0m": 0.0
+      },
+      "USDT/BTC": {
+        "EF91\n\u2026\n1D4B\n22,075,980\n0x9d\n\u2026\na16f\nbc1q\n\u2026\npxj5": 0.0,
+        "5FB8\n\u2026\n83FE\n22,059,839\n0xa4\n\u2026\ne938\nbc1q\n\u2026\nxgqp": 248.764074
+      },
+      "ETH/RUNE": {
+        "80D1\n\u2026\nAC80\n22,075,635\n0x32\n\u2026\n89a9\nthor\n\u2026\n6qdz": 0.0005
+      },
+      "ETH/ATOM": {
+        "7452\n\u2026\n39E3\n22,071,615\n0x5e\n\u2026\n8054\ncosm\n\u2026\nlm4q": 0.0017
+      },
+      "RUNE/ETH": {
+        "C599\n\u2026\nE763\n22,070,692\nthor\n\u2026\nnmxx\n0xf4\n\u2026\nA88e": 18.0,
+        "4A56\n\u2026\nE637\n22,063,804\nthor\n\u2026\ngwdm\n0xEC\n\u2026\n7dE8": 90.0,
+        "84E6\n\u2026\nEA76\n22,053,679\nthor\n\u2026\n2ez0\n0xB7\n\u2026\n98a3": 0.0,
+        "8F00\n\u2026\nCEBA\n22,053,616\nthor\n\u2026\n2ez0\n0xB7\n\u2026\n98a3": 0.0,
+        "F2E8\n\u2026\n051B\n22,053,511\nthor\n\u2026\n2ez0\n0xB7\n\u2026\n98a3": 0.0,
+        "6C35\n\u2026\n6763\n22,053,207\nthor\n\u2026\n0rwp\n0x49\n\u2026\n4A9d": 140.0
+      },
+      "ATOM/BTC": {
+        "9D6A\n\u2026\n88A6\n22,067,487\ncosm\n\u2026\n4fes\nbc1q\n\u2026\nptzy": 305.0
+      },
+      "DOGE/ETH": {
+        "3051\n\u2026\n880E\n22,067,377\nd72p\n\u2026\nd4ts\n0x08\n\u2026\n00b3": 701.0
+      },
+      "AVAX/ETH": {
+        "79A9\n\u2026\nE46D\n22,058,809\n0x38\n\u2026\nbded\n0x38\n\u2026\nBdED": 0.1855
+      },
+      "LTC/USDT": {
+        "4364\n\u2026\n6117\n22,057,215\nltc1\n\u2026\npqcd\n0x0A\n\u2026\n8008": 94.2482
+      },
+      "DAI/BTC": {
+        "A5F1\n\u2026\n6DA5\n22,055,627\n0xef\n\u2026\ne8ef\nbc1q\n\u2026\nu5mh": 0.0
+      },
+      "USDC/BTC": {
+        "B9A0\n\u2026\n0142\n22,054,411\n0x48\n\u2026\n1ec5\nbc1q\n\u2026\nqdjn": 0.0
+      },
+      "AVAX/TCY": {
+        "4C8B\n\u2026\n4D11\n22,054,126\n0xfe\n\u2026\nb476\nthor\n\u2026\n5fpr": 0.07115384
+      },
+      "ETH/DOGE": {
+        "9D01\n\u2026\nAD6D\n22,053,797\n0x48\n\u2026\nc372\nDPSN\n\u2026\nWkfx": 0.08589528
+      },
+      "DOGE/TCY": {
+        "B377\n\u2026\n0FAF\n22,053,581\ndrip\n\u2026\ns47a\nthor\n\u2026\n5fpr": 36.5
+      },
+      "ATOM/TCY": {
+        "05DB\n\u2026\n29B1\n22,053,577\ncosm\n\u2026\nsvte\nthor\n\u2026\n5fpr": 0.4
+      },
+      "THOR/USDT": {
+        "FD7A\n\u2026\n2F45\n22,047,193": 0.0
+      },
+      "BCH/RUNE": {
+        "2887\n\u2026\nA2B5\n22,043,268\nqz4w\n\u2026\np36q\nthor\n\u2026\ns7zy": 0.0066
+      },
+      "FOX/ATOM": {
+        "F7F4\n\u2026\nBDBF\n22,041,308\n0x17\n\u2026\n0076\ncosm\n\u2026\nzfa5": 876.51716809
+      },
+      "WBTC/BTC": {
+        "8331\n\u2026\n6F0E\n22,041,086\n0x55\n\u2026\ndf5f\nbc1q\n\u2026\nyuq8": 0.10275676,
+        "8C60\n\u2026\nFEDF\n22,040,863\n0x55\n\u2026\ndf5f\nbc1q\n\u2026\nqtv7": 0.001
+      },
+      "ETH/WETH": {
+        "Relay": 2.118210525462999
+      },
+      "ETH/USDT": {
+        "Relay": 0.027958158301875438
+      },
+      "ETH/ARB": {
+        "Relay": 0.02158875650447945
+      },
+      "ETH/USDC": {
+        "Relay": 21.404927563196214
+      },
+      "ETH/0x3ec2156D...": {
+        "Relay": 0.00042500000000000003
+      },
+      "ETH/0xd9aAEc86...": {
+        "Relay": 0.0001928019710865
+      },
+      "ETH/0xF1fC9580...": {
+        "Relay": 5.7107260932050005e-06
+      },
+      "ETH/0x63706e40...": {
+        "Relay": 1.6454453816711e-05
+      },
+      "ETH/0x9e1028F5...": {
+        "Relay": 2.4864348157045e-05
+      },
+      "ETH/0xb8D98a10...": {
+        "Relay": 9.696768036871502e-05
+      },
+      "ETH/1INCH": {
+        "Relay": 0.035856711913292004
+      },
+      "ETH/0x4ed4E862...": {
+        "Relay": 6.266698047387407e-05
+      },
+      "ETH/TAI": {
+        "Relay": 3.5549409000000005e-10
+      },
+      "ETH/0xB3B32F9f...": {
+        "Relay": 2.0249845333612e-05
+      },
+      "ETH/0xdB85677b...": {
+        "Relay": 9.3021048174584e-05
+      },
+      "ETH/0x2b5050F0...": {
+        "Relay": 0.000163401598782181
+      },
+      "ETH/0x4BfAa776...": {
+        "Relay": 1.4865651948722e-05
+      },
+      "ETH/0x120edC8E...": {
+        "Relay": 5.482195892908e-06
+      },
+      "ETH/0x0555E30d...": {
+        "Relay": 2.29944e-05
+      },
+      "ETH/0x67446a57...": {
+        "Relay": 1.324e-15
+      },
+      "ETH/0x88Fb150B...": {
+        "Relay": 4.4868e-14
+      },
+      "ETH/FLOWER": {
+        "Relay": 3.0319999999999996e-15
+      },
+      "ETH/0x937a1cFA...": {
+        "Relay": 1.3879999999999999e-15
+      },
+      "ETH/0x616b416f...": {
+        "Relay": 1.2368e-14
+      },
+      "ETH/0xC44141a6...": {
+        "Relay": 1.324e-15
+      },
+      "ETH/0xE0Cd4cAc...": {
+        "Relay": 5.328000000000001e-15
+      },
+      "ETH/0x35c8aFb7...": {
+        "Relay": 6.568000000000001e-15
+      },
+      "ETH/0x9DE16c80...": {
+        "Relay": 1.5159999999999998e-15
+      },
+      "ETH/SKYA": {
+        "Relay": 1.5159999999999998e-15
+      },
+      "ETH/0x46777C76...": {
+        "Relay": 3.808e-15
+      },
+      "ETH/0x8C9037D1...": {
+        "Relay": 7.084000000000001e-15
+      },
+      "ETH/0x3055913c...": {
+        "Relay": 3.088000000000001e-14
+      },
+      "ETH/0xFB7a83ab...": {
+        "Relay": 2.864e-15
+      },
+      "ETH/0x07d15798...": {
+        "Relay": 1.3879999999999999e-15
+      },
+      "ETH/0xe3CF8dBc...": {
+        "Relay": 9.4e-16
+      },
+      "ETH/0x98d0baa5...": {
+        "Relay": 1.67e-14
+      },
+      "ETH/0xAfb89a09...": {
+        "Relay": 1.868e-15
+      },
+      "ETH/0xD968196F...": {
+        "Relay": 1.3879999999999999e-15
+      },
+      "ETH/COOKIE": {
+        "Relay": 1.0468000000000002e-14
+      },
+      "ETH/0xA99F6e67...": {
+        "Relay": 4.5103999999999985e-14
+      },
+      "ETH/W": {
+        "Relay": 2.064800000000001e-14
+      },
+      "ETH/0xa3A34A0D...": {
+        "Relay": 1.2335999999999999e-14
+      },
+      "ETH/0x4F9Fd6Be...": {
+        "Relay": 1.7636000000000005e-14
+      },
+      "ETH/0x15aC9016...": {
+        "Relay": 1.3879999999999999e-15
+      },
+      "ETH/0x0c41F1FC...": {
+        "Relay": 2.484e-15
+      },
+      "ETH/0xba12BC7B...": {
+        "Relay": 9.048e-15
+      },
+      "ETH/0x0039BB9a...": {
+        "Relay": 1.3879999999999999e-15
+      },
+      "ETH/0x7D49a065...": {
+        "Relay": 1.3879999999999999e-15
+      },
+      "ETH/0xE3B53AF7...": {
+        "Relay": 3.1879999999999997e-15
+      },
+      "ETH/0x5aB3D4c3...": {
+        "Relay": 3.988e-15
+      },
+      "ETH/0xb33Ff54b...": {
+        "Relay": 9.08e-16
+      },
+      "ETH/0x532f2710...": {
+        "Relay": 2.844400000000001e-14
+      },
+      "ETH/0x3C281A39...": {
+        "Relay": 4.856e-15
+      },
+      "ETH/0xE3086852...": {
+        "Relay": 1.708e-15
+      },
+      "ETH/0xC9d23ED2...": {
+        "Relay": 1.5132000000000004e-14
+      },
+      "ETH/0xBAa5CC21...": {
+        "Relay": 3.892e-15
+      },
+      "ETH/0x9c632E6A...": {
+        "Relay": 9.552000000000002e-15
+      },
+      "ETH/0x70737489...": {
+        "Relay": 1.384e-15
+      },
+      "ETH/0x2Da56AcB...": {
+        "Relay": 8.668e-15
+      },
+      "ETH/0xB1a03EdA...": {
+        "Relay": 1.8120000000000003e-15
+      },
+      "ETH/0x3992B27d...": {
+        "Relay": 1.0544000000000001e-14
+      },
+      "ETH/0x24914CB6...": {
+        "Relay": 9.04e-16
+      },
+      "ETH/0xAC1Bd248...": {
+        "Relay": 1.0640000000000002e-14
+      },
+      "ETH/0xacfE6019...": {
+        "Relay": 1.7623999999999998e-14
+      },
+      "ETH/BIRDS": {
+        "Relay": 9.08e-16
+      },
+      "ETH/0x820C5F0f...": {
+        "Relay": 5.24e-15
+      },
+      "ETH/0xc8e51Fef...": {
+        "Relay": 8.120000000000001e-16
+      },
+      "ETH/0x2615a94d...": {
+        "Relay": 1.5799999999999998e-15
+      },
+      "ETH/0x820C137f...": {
+        "Relay": 1.26e-15
+      },
+      "ETH/0x73b7F226...": {
+        "Relay": 2.132e-15
+      },
+      "ETH/0x9Cb41FD9...": {
+        "Relay": 7.188e-15
+      },
+      "ETH/CARV": {
+        "Relay": 4.227999999999999e-15
+      },
+      "ETH/0xDa32f714...": {
+        "Relay": 1.5799999999999998e-15
+      },
+      "ETH/0x7d6fcB33...": {
+        "Relay": 1.3879999999999999e-15
+      },
+      "ETH/0x161e113B...": {
+        "Relay": 1.576e-15
+      },
+      "ETH/0xaeA742f8...": {
+        "Relay": 1.196e-15
+      },
+      "ETH/0x5Fc28438...": {
+        "Relay": 1.032e-15
+      },
+      "ETH/0xaAA9A3bC...": {
+        "Relay": 9.399999999999999e-16
+      },
+      "ETH/0xc0c5689e...": {
+        "Relay": 7.08e-15
+      }
+    },
+    "affiliate_totals": {
+      "8573\n\u2026\n7045\n22,170,485\nthor\n\u2026\nm4sl\n0x9b\n\u2026\naB06": 0.0,
+      "2A2E\n\u2026\nE937\n22,169,927\ndc8u\n\u2026\neunt\nbc1q\n\u2026\nxwt2": 894.0,
+      "939A\n\u2026\n680D\n22,168,561\nthor\n\u2026\n3ajq\nltc1\n\u2026\nw4hw": 718.0,
+      "A036\n\u2026\n6C0C\n22,167,784\nbc1q\n\u2026\nlrly\n0x88\n\u2026\n1090": 0.0385,
+      "270B\n\u2026\nFAF2\n22,167,126\n36gl\n\u2026\nufri\n0xFF\n\u2026\nf82f": 0.00176597,
+      "C62F\n\u2026\n4C75\n22,165,890\nltc1\n\u2026\n4ehv\n0x66\n\u2026\n25b9": 0.8827,
+      "AB93\n\u2026\n7A15\n22,165,853\n0xca\n\u2026\n2f11\nDSVF\n\u2026\n6UDZ": 0.0,
+      "6A48\n\u2026\n92E7\n22,163,928\n3fpg\n\u2026\nkt4b\n0xFF\n\u2026\nf82f": 0.00848682,
+      "DEC2\n\u2026\n4BFE\n22,163,179\ndaks\n\u2026\nfdfr\nbc1q\n\u2026\n70q4": 0.0,
+      "8C24\n\u2026\n9D82\n22,156,996\n0xa4\n\u2026\n29c8\nthor\n\u2026\n420n": 0.178,
+      "5CD7\n\u2026\nE99E\n22,156,179\nthor\n\u2026\n3ajq\nltc1\n\u2026\n5jvf": 0.0,
+      "FA2D\n\u2026\n6B4E\n22,150,831\nthor\n\u2026\nu9fq\nbc1q\n\u2026\nggj7": 0.0,
+      "1A9C\n\u2026\nAB32\n22,150,320\n37ft\n\u2026\n99dm\n0xc1\n\u2026\n43A4": 0.8009,
+      "2C5D\n\u2026\nBDA0\n22,150,193\n37ft\n\u2026\n99dm\n0xc1\n\u2026\n43A4": 0.199,
+      "276F\n\u2026\n518B\n22,149,400\nthor\n\u2026\nyf9h\nbc1q\n\u2026\nk67p": 0.0,
+      "3DE1\n\u2026\n1814\n22,146,378\nqzq6\n\u2026\nqqy7\nltc1\n\u2026\n4fr9": 0.1346,
+      "DF1A\n\u2026\n2F20\n22,144,736\n0x72\n\u2026\nbcbe\nbc1q\n\u2026\ncuw9": 0.0227,
+      "0112\n\u2026\n2460\n22,142,546\nbc1q\n\u2026\ne9zf\n0x28\n\u2026\nE986": 0.00427516,
+      "1121\n\u2026\nEE9D\n22,141,497\nthor\n\u2026\nk0fh\nbc1q\n\u2026\nl47w": 38.2,
+      "2812\n\u2026\nD36E\n22,137,465\nthor\n\u2026\nctkn\n0x4E\n\u2026\nbB0C": 0.0,
+      "61A1\n\u2026\n2D33\n22,137,434\nthor\n\u2026\nctkn\n0x4E\n\u2026\nbB0C": 0.0,
+      "CAAD\n\u2026\n5A79\n22,137,426\nthor\n\u2026\nctkn\n0x4E\n\u2026\nbB0C": 0.0,
+      "6119\n\u2026\n2672\n22,137,403\nthor\n\u2026\nctkn\nbc1q\n\u2026\nuqyt": 0.0,
+      "9FA9\n\u2026\n88D2\n22,137,363\nthor\n\u2026\nctkn\n0x4E\n\u2026\nbB0C": 804.64428503,
+      "3165\n\u2026\n657A\n22,137,028\nqppa\n\u2026\n7ua8\n0x91\n\u2026\nE3c1": 1.669,
+      "8243\n\u2026\nAA2E\n22,136,706\nqz5t\n\u2026\ng9fq\n0x7E\n\u2026\nB787": 0.9745,
+      "69A9\n\u2026\nAB93\n22,135,557\nqr7f\n\u2026\nylp6\n0x7E\n\u2026\nB787": 0.01,
+      "758E\n\u2026\n7D8F\n22,125,598\nbc1q\n\u2026\nqmr9\nthor\n\u2026\nneg4": 0.06027253,
+      "7580\n\u2026\n61E4\n22,125,300\nbc1q\n\u2026\n3au5\nthor\n\u2026\n7xjq": 0.07140522,
+      "9FC2\n\u2026\n4907\n22,123,701\n0x7e\n\u2026\n379f\nbc1q\n\u2026\ndzac": 39.8471,
+      "5027\n\u2026\nA3D8\n22,123,572\n0x26\n\u2026\n56e3\nbc1q\n\u2026\ngl27": 0.15019268,
+      "548F\n\u2026\n3805\n22,123,028\nbc1q\n\u2026\nvdkn\nthor\n\u2026\n5ezr": 0.06989489,
+      "3D5B\n\u2026\nF657\n22,121,493\ncosm\n\u2026\ndc30\nthor\n\u2026\nchsr": 0.01,
+      "AB8C\n\u2026\n1ADF\n22,119,624\n14zk\n\u2026\nypq6\n0xca\n\u2026\ne834": 0.00268863,
+      "CFD3\n\u2026\nA0C1\n22,115,753\ndacl\n\u2026\ndfl5\nbc1q\n\u2026\n3c0q": 0.0,
+      "0241\n\u2026\n03B4\n22,115,310\nbc1q\n\u2026\nsxhu\n0x5d\n\u2026\n818f": 0.8,
+      "6F70\n\u2026\nA2B8\n22,114,136\nbc1q\n\u2026\nvfsp\nthor\n\u2026\nmadc": 0.0998752,
+      "C9C1\n\u2026\n2A19\n22,112,698\nbc1q\n\u2026\n2rrr\nthor\n\u2026\nls49": 0.09494875,
+      "D62B\n\u2026\nEFAD\n22,111,827\nthor\n\u2026\nklju\n0x90\n\u2026\n51Be": 0.0,
+      "6033\n\u2026\nE9CF\n22,111,597\n0x95\n\u2026\na5c2\nbc1q\n\u2026\n6flm": 29.8783,
+      "BD5F\n\u2026\nB07D\n22,110,973\n0x40\n\u2026\n55be\nltc1\n\u2026\n052v": 50.0,
+      "8449\n\u2026\nB047\n22,110,727\nmejt\n\u2026\npgwe\nbc1q\n\u2026\nsv67": 4.3784646,
+      "A47D\n\u2026\nB69B\n22,110,137\nbc1q\n\u2026\nth86\nthor\n\u2026\nl54l": 0.11984547,
+      "DFB8\n\u2026\nD39D\n22,110,010\nltc1\n\u2026\np79d\n0x40\n\u2026\n5f4a": 0.935,
+      "D453\n\u2026\n7AD6\n22,108,301\nbc1q\n\u2026\n8y2h\nthor\n\u2026\nvjdn": 0.07280245,
+      "922E\n\u2026\n4D49\n22,107,802\nbc1q\n\u2026\ne4qt\nthor\n\u2026\nr6u7": 0.10986261,
+      "2B49\n\u2026\n747E\n22,107,245\nbc1q\n\u2026\ndyhj\nthor\n\u2026\n97gm": 0.00059675,
+      "447A\n\u2026\n1E55\n22,106,930\nbc1q\n\u2026\n7z4v\nthor\n\u2026\n97gm": 0.05928383,
+      "8B22\n\u2026\nAC85\n22,101,210\nltc1\n\u2026\ndg0w\nthor\n\u2026\n6qdz": 0.01,
+      "8AE9\n\u2026\nCB7E\n22,101,031\n0x32\n\u2026\n89a9\nltc1\n\u2026\ndg0w": 0.0015,
+      "1ED9\n\u2026\n173E\n22,100,454\n0x43\n\u2026\n1c7b\nltc1\n\u2026\nrcxc": 0.0061,
+      "B43B\n\u2026\n13C0\n22,100,350\nbc1q\n\u2026\ntm36\n0xAB\n\u2026\n43C4": 0.00042168,
+      "D05D\n\u2026\n59A8\n22,100,336\n0xe3\n\u2026\n80f6\nltc1\n\u2026\n0e9p": 0.01784,
+      "DF56\n\u2026\n8FBF\n22,098,858\nthor\n\u2026\nm4sl\n0x9b\n\u2026\naB06": 0.0,
+      "4C4D\n\u2026\nD2D6\n22,096,622\nbc1q\n\u2026\n6r3y\nthor\n\u2026\nt2ww": 0.14482042,
+      "2F0E\n\u2026\n0599\n22,095,725\nbc1q\n\u2026\n0gfz\nthor\n\u2026\n2evl": 0.07988672,
+      "9FC7\n\u2026\n8966\n22,095,448\nthor\n\u2026\nm4sl\n0x9b\n\u2026\naB06": 0.0,
+      "CA71\n\u2026\nE3E3\n22,095,037\nbc1q\n\u2026\n9fcd\nthor\n\u2026\nnhlr": 0.1198224,
+      "F276\n\u2026\n4DA4\n22,093,122\nlunt\n\u2026\nvvbm\nbc1q\n\u2026\nfecy": 6.52097286,
+      "B3DD\n\u2026\n8650\n22,092,747\n0x18\n\u2026\n35c0\nltc1\n\u2026\nnzk3": 4.1745,
+      "9636\n\u2026\n9776\n22,092,089\n0xd4\n\u2026\n1a57\nLWP8\n\u2026\niyMu": 0.0,
+      "36A1\n\u2026\nA9F5\n22,089,364\n0xb7\n\u2026\n98a3\n0xB7\n\u2026\n98a3": 0.01,
+      "3E1D\n\u2026\nC2D9\n22,087,078\n0x3d\n\u2026\ndd3a\nthor\n\u2026\nv3r8": 0.41562759,
+      "E279\n\u2026\n1FD8\n22,085,615\n0xbf\n\u2026\n01af\nthor\n\u2026\nkgtf": 0.0,
+      "40AC\n\u2026\n9CCD\n22,085,519\n0x4a\n\u2026\n89b6\n0x4a\n\u2026\n89b6": 923.97883789,
+      "F1AB\n\u2026\n0CF4\n22,085,008\n0xa3\n\u2026\nd529\nbc1q\n\u2026\nh3vp": 1.78986753,
+      "411E\n\u2026\n784D\n22,084,976\n0xca\n\u2026\n2f11\nltc1\n\u2026\n23vd": 0.0,
+      "2F68\n\u2026\n7FDF\n22,084,537\nthor\n\u2026\nm4sl\n0x9b\n\u2026\naB06": 0.0,
+      "8FE8\n\u2026\n4A30\n22,082,645\nbc1q\n\u2026\nywkh\n0x01\n\u2026\nE38b": 0.00846045,
+      "BFDD\n\u2026\n9A8C\n22,082,491\nbc1q\n\u2026\nllzz\nthor\n\u2026\nz827": 0.03983264,
+      "07DF\n\u2026\nB481\n22,081,240\nbc1q\n\u2026\npjzu\nthor\n\u2026\naxm2": 0.08652796,
+      "DCE2\n\u2026\n5E19\n22,080,823\n0xca\n\u2026\n2f11\nDR7Z\n\u2026\n6Qxm": 0.0,
+      "69B3\n\u2026\nE671\n22,080,801\nbc1q\n\u2026\nhyv5\n0xbf\n\u2026\n3c3c": 0.104,
+      "74DB\n\u2026\n2066\n22,080,801\nbc1q\n\u2026\nrcpy\nthor\n\u2026\np4sv": 0.04997132,
+      "B015\n\u2026\n4173\n22,079,882\ncosm\n\u2026\n5mx0\nthor\n\u2026\nk6al": 0.100402,
+      "87A0\n\u2026\n4310\n22,079,762\nqqj4\n\u2026\nskkv\n0xAD\n\u2026\n5406": 0.04737989,
+      "EFDC\n\u2026\nC3F6\n22,079,232\n0x47\n\u2026\nf61b\nbc1q\n\u2026\nrz0m": 0.0,
+      "EE90\n\u2026\n5E66\n22,078,610\n0x6a\n\u2026\ncba9\nbc1q\n\u2026\nf9z7": 4.426,
+      "EF91\n\u2026\n1D4B\n22,075,980\n0x9d\n\u2026\na16f\nbc1q\n\u2026\npxj5": 0.0,
+      "80D1\n\u2026\nAC80\n22,075,635\n0x32\n\u2026\n89a9\nthor\n\u2026\n6qdz": 0.0005,
+      "DFDC\n\u2026\nB0D6\n22,075,488\n0x11\n\u2026\n8a4f\nbc1q\n\u2026\nwgq9": 49.793,
+      "0BD8\n\u2026\n4E60\n22,074,725\nd9rk\n\u2026\nvbkf\nbc1q\n\u2026\npwel": 0.0,
+      "50CC\n\u2026\n96A4\n22,073,545\nd8ka\n\u2026\nfgcc\nbc1q\n\u2026\n63ux": 0.0,
+      "FFB7\n\u2026\nD2BF\n22,073,302\ndmxn\n\u2026\n6zup\nbc1q\n\u2026\n63ux": 570.0,
+      "E1AA\n\u2026\n6B67\n22,072,726\nthor\n\u2026\ntlhj\nbc1q\n\u2026\n9q6g": 0.0,
+      "7452\n\u2026\n39E3\n22,071,615\n0x5e\n\u2026\n8054\ncosm\n\u2026\nlm4q": 0.0017,
+      "C599\n\u2026\nE763\n22,070,692\nthor\n\u2026\nnmxx\n0xf4\n\u2026\nA88e": 18.0,
+      "4229\n\u2026\nBC9E\n22,068,680\nbc1q\n\u2026\n7x9w\nthor\n\u2026\nrssm": 0.06410116,
+      "9D6A\n\u2026\n88A6\n22,067,487\ncosm\n\u2026\n4fes\nbc1q\n\u2026\nptzy": 305.0,
+      "3051\n\u2026\n880E\n22,067,377\nd72p\n\u2026\nd4ts\n0x08\n\u2026\n00b3": 701.0,
+      "3CEF\n\u2026\n71D7\n22,067,367\nbc1q\n\u2026\nl8qx\nthor\n\u2026\nus60": 0.04995,
+      "CCEA\n\u2026\nE1F5\n22,066,986\nbc1q\n\u2026\n0qyz\nthor\n\u2026\nhf32": 0.00997,
+      "4A56\n\u2026\nE637\n22,063,804\nthor\n\u2026\ngwdm\n0xEC\n\u2026\n7dE8": 90.0,
+      "5FB8\n\u2026\n83FE\n22,059,839\n0xa4\n\u2026\ne938\nbc1q\n\u2026\nxgqp": 248.764074,
+      "6C16\n\u2026\nBC16\n22,059,763\n0x3d\n\u2026\ndd3a\n3Aic\n\u2026\nZhzQ": 0.0040165,
+      "1396\n\u2026\nD08B\n22,059,270\nbc1q\n\u2026\nd9gf\n0x77\n\u2026\n98D5": 0.0265,
+      "79A9\n\u2026\nE46D\n22,058,809\n0x38\n\u2026\nbded\n0x38\n\u2026\nBdED": 0.1855,
+      "A74D\n\u2026\nE272\n22,057,252\n0xad\n\u2026\n5fda\nbc1q\n\u2026\n8yp4": 1.331,
+      "4364\n\u2026\n6117\n22,057,215\nltc1\n\u2026\npqcd\n0x0A\n\u2026\n8008": 94.2482,
+      "A5F1\n\u2026\n6DA5\n22,055,627\n0xef\n\u2026\ne8ef\nbc1q\n\u2026\nu5mh": 0.0,
+      "FC4B\n\u2026\n622B\n22,054,491\nthor\n\u2026\nm4sl\n0x9b\n\u2026\naB06": 0.0,
+      "B9A0\n\u2026\n0142\n22,054,411\n0x48\n\u2026\n1ec5\nbc1q\n\u2026\nqdjn": 0.0,
+      "4F57\n\u2026\n28C8\n22,054,244\n35w8\n\u2026\nkuy3\n0xDA\n\u2026\n7795": 0.03365785,
+      "4C8B\n\u2026\n4D11\n22,054,126\n0xfe\n\u2026\nb476\nthor\n\u2026\n5fpr": 0.07115384,
+      "9D01\n\u2026\nAD6D\n22,053,797\n0x48\n\u2026\nc372\nDPSN\n\u2026\nWkfx": 0.08589528,
+      "84E6\n\u2026\nEA76\n22,053,679\nthor\n\u2026\n2ez0\n0xB7\n\u2026\n98a3": 0.0,
+      "8F00\n\u2026\nCEBA\n22,053,616\nthor\n\u2026\n2ez0\n0xB7\n\u2026\n98a3": 0.0,
+      "B377\n\u2026\n0FAF\n22,053,581\ndrip\n\u2026\ns47a\nthor\n\u2026\n5fpr": 36.5,
+      "05DB\n\u2026\n29B1\n22,053,577\ncosm\n\u2026\nsvte\nthor\n\u2026\n5fpr": 0.4,
+      "F2E8\n\u2026\n051B\n22,053,511\nthor\n\u2026\n2ez0\n0xB7\n\u2026\n98a3": 0.0,
+      "6C35\n\u2026\n6763\n22,053,207\nthor\n\u2026\n0rwp\n0x49\n\u2026\n4A9d": 140.0,
+      "82A1\n\u2026\n869E\n22,052,580\ncosm\n\u2026\ng578\nthor\n\u2026\ntv50": 0.6,
+      "1D6F\n\u2026\nF3C1\n22,050,264\nthor\n\u2026\nctkn\n0x4E\n\u2026\nbB0C": 993.20982073,
+      "8D6E\n\u2026\nBE72\n22,048,309\nthor\n\u2026\np3pp\n0x69\n\u2026\naFef": 0.0,
+      "FD7A\n\u2026\n2F45\n22,047,193": 0.0,
+      "9BDA\n\u2026\nAA37\n22,044,207\n0x48\n\u2026\n1ec5\nbc1q\n\u2026\na2ha": 0.14,
+      "2887\n\u2026\nA2B5\n22,043,268\nqz4w\n\u2026\np36q\nthor\n\u2026\ns7zy": 0.0066,
+      "A7CC\n\u2026\n79B1\n22,043,040\n34ib\n\u2026\nsusi\n0x38\n\u2026\nCAEC": 0.005,
+      "B7F8\n\u2026\n6049\n22,042,032\nthor\n\u2026\np28e\nbc1q\n\u2026\nj0e9": 10.3,
+      "E900\n\u2026\n7589\n22,041,648\nthor\n\u2026\np28e\nbc1q\n\u2026\nj0e9": 0.0,
+      "F7F4\n\u2026\nBDBF\n22,041,308\n0x17\n\u2026\n0076\ncosm\n\u2026\nzfa5": 876.51716809,
+      "8331\n\u2026\n6F0E\n22,041,086\n0x55\n\u2026\ndf5f\nbc1q\n\u2026\nyuq8": 0.10275676,
+      "8C60\n\u2026\nFEDF\n22,040,863\n0x55\n\u2026\ndf5f\nbc1q\n\u2026\nqtv7": 0.001,
+      "EBC4\n\u2026\n8CFD\n22,040,292\n0x36\n\u2026\n4bbc\nbc1q\n\u2026\nwxfu": 18.63,
+      "1C3A\n\u2026\nFD92\n22,040,243\n0x36\n\u2026\n4bbc\nbc1q\n\u2026\nwxfu": 0.01323886,
+      "Relay": 23.609686196634495
+    },
+    "summary": {
+      "total_unique_pairs": 131,
+      "total_volume": 7707.366507206633,
+      "total_affiliates": 126
+    }
+  }
+}

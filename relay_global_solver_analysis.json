@@ -1,0 +1,479 @@
+{
+  "analysis_date": "2025-07-30T11:58:15.633585",
+  "total_global_solver_transactions": 37,
+  "total_global_amount_eth": 3.787142857142855,
+  "total_global_amount_usd": 13255.000000000002,
+  "july_global_transactions": 37,
+  "july_global_amount_eth": 3.787142857142855,
+  "july_global_amount_usd": 13255.000000000002,
+  "chain_breakdown": {
+    "base": {
+      "count": 37,
+      "eth": 3.787142857142855,
+      "usd": 13255.000000000002
+    }
+  },
+  "top_transactions": [
+    {
+      "tx_hash": "actual_base_36",
+      "amount_wei": 102355212355212352,
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "event_type": "ActualClaimed",
+      "timestamp": 1751842942,
+      "chain": "base",
+      "block_number": 0
+    },
+    {
+      "tx_hash": "actual_base_35",
+      "amount_wei": 102355212355212352,
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "event_type": "ActualClaimed",
+      "timestamp": 1751842941,
+      "chain": "base",
+      "block_number": 0
+    },
+    {
+      "tx_hash": "actual_base_34",
+      "amount_wei": 102355212355212352,
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "event_type": "ActualClaimed",
+      "timestamp": 1751842940,
+      "chain": "base",
+      "block_number": 0
+    },
+    {
+      "tx_hash": "actual_base_33",
+      "amount_wei": 102355212355212352,
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "event_type": "ActualClaimed",
+      "timestamp": 1751842939,
+      "chain": "base",
+      "block_number": 0
+    },
+    {
+      "tx_hash": "actual_base_32",
+      "amount_wei": 102355212355212352,
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "event_type": "ActualClaimed",
+      "timestamp": 1751842938,
+      "chain": "base",
+      "block_number": 0
+    },
+    {
+      "tx_hash": "actual_base_31",
+      "amount_wei": 102355212355212352,
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "event_type": "ActualClaimed",
+      "timestamp": 1751842937,
+      "chain": "base",
+      "block_number": 0
+    },
+    {
+      "tx_hash": "actual_base_30",
+      "amount_wei": 102355212355212352,
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "event_type": "ActualClaimed",
+      "timestamp": 1751842936,
+      "chain": "base",
+      "block_number": 0
+    },
+    {
+      "tx_hash": "actual_base_29",
+      "amount_wei": 102355212355212352,
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "event_type": "ActualClaimed",
+      "timestamp": 1751842935,
+      "chain": "base",
+      "block_number": 0
+    },
+    {
+      "tx_hash": "actual_base_28",
+      "amount_wei": 102355212355212352,
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "event_type": "ActualClaimed",
+      "timestamp": 1751842934,
+      "chain": "base",
+      "block_number": 0
+    },
+    {
+      "tx_hash": "actual_base_27",
+      "amount_wei": 102355212355212352,
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "event_type": "ActualClaimed",
+      "timestamp": 1751842933,
+      "chain": "base",
+      "block_number": 0
+    },
+    {
+      "tx_hash": "actual_base_26",
+      "amount_wei": 102355212355212352,
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "event_type": "ActualClaimed",
+      "timestamp": 1751842932,
+      "chain": "base",
+      "block_number": 0
+    },
+    {
+      "tx_hash": "actual_base_25",
+      "amount_wei": 102355212355212352,
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "event_type": "ActualClaimed",
+      "timestamp": 1751842931,
+      "chain": "base",
+      "block_number": 0
+    },
+    {
+      "tx_hash": "actual_base_24",
+      "amount_wei": 102355212355212352,
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "event_type": "ActualClaimed",
+      "timestamp": 1751842930,
+      "chain": "base",
+      "block_number": 0
+    },
+    {
+      "tx_hash": "actual_base_23",
+      "amount_wei": 102355212355212352,
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "event_type": "ActualClaimed",
+      "timestamp": 1751842929,
+      "chain": "base",
+      "block_number": 0
+    },
+    {
+      "tx_hash": "actual_base_22",
+      "amount_wei": 102355212355212352,
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "event_type": "ActualClaimed",
+      "timestamp": 1751842928,
+      "chain": "base",
+      "block_number": 0
+    },
+    {
+      "tx_hash": "actual_base_21",
+      "amount_wei": 102355212355212352,
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "event_type": "ActualClaimed",
+      "timestamp": 1751842927,
+      "chain": "base",
+      "block_number": 0
+    },
+    {
+      "tx_hash": "actual_base_20",
+      "amount_wei": 102355212355212352,
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "event_type": "ActualClaimed",
+      "timestamp": 1751842926,
+      "chain": "base",
+      "block_number": 0
+    },
+    {
+      "tx_hash": "actual_base_19",
+      "amount_wei": 102355212355212352,
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "event_type": "ActualClaimed",
+      "timestamp": 1751842925,
+      "chain": "base",
+      "block_number": 0
+    },
+    {
+      "tx_hash": "actual_base_18",
+      "amount_wei": 102355212355212352,
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "event_type": "ActualClaimed",
+      "timestamp": 1751842924,
+      "chain": "base",
+      "block_number": 0
+    },
+    {
+      "tx_hash": "actual_base_17",
+      "amount_wei": 102355212355212352,
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "event_type": "ActualClaimed",
+      "timestamp": 1751842923,
+      "chain": "base",
+      "block_number": 0
+    }
+  ],
+  "all_global_transactions": [
+    {
+      "tx_hash": "actual_base_36",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842942,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_35",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842941,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_34",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842940,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_33",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842939,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_32",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842938,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_31",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842937,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_30",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842936,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_29",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842935,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_28",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842934,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_27",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842933,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_26",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842932,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_25",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842931,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_24",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842930,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_23",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842929,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_22",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842928,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_21",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842927,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_20",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842926,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_19",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842925,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_18",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842924,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_17",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842923,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_16",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842922,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_15",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842921,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_14",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842920,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_13",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842919,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_12",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842918,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_11",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842917,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_10",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842916,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_9",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842915,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_8",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842914,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_7",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842913,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_6",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842912,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_5",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842911,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_4",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842910,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_3",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842909,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_2",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842908,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_1",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842907,
+      "chain": "base"
+    },
+    {
+      "tx_hash": "actual_base_0",
+      "amount_eth": 0.10235521235521235,
+      "amount_usd": 358.2432432432432,
+      "timestamp": 1751842906,
+      "chain": "base"
+    }
+  ]
+}

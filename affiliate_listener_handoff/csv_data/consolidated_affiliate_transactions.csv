@@ -1,0 +1,1 @@
+source,chain,tx_hash,block_number,block_timestamp,block_date,input_token,input_amount,output_token,output_amount,sender,recipient,partner,affiliate_token,affiliate_amount,affiliate_fee_usd,volume_usd,created_at,created_date

@@ -1,0 +1,102 @@
+{
+  "generated_at": "2025-08-17T20:11:48.978323",
+  "addresses_analyzed": [
+    "0x90a48d5cf7343b08da12e067680b4c6dbfe551be",
+    "0x6268d07327f4fb7380732dc6d63d95f88c0e083b",
+    "0x74d63f31c2335b5b3ba7ad2812357672b2624ced",
+    "0xb5f944600785724e31edb90f9dfa16dbf01af000",
+    "0xb0e3175341794d1dc8e5f02a02f9d26989ebedb3",
+    "0x8b92b1698b57bedf2142297e9397875adbb2297e",
+    "0x38276553f8fbf2a027d901f8be45f00373d8dd48",
+    "0x5c59d0ec51729e40c413903be6a4612f4e2452da",
+    "0x9c9aa90363630d4ab1d9dbf416cc3bbc8d3ed502",
+    "0x4e4c9e7717da5bd1e98a5d723b6b1f964dd30861"
+  ],
+  "total_transactions": 0,
+  "transactions": [],
+  "summary_by_address": {
+    "0x90a48d5cf7343b08da12e067680b4c6dbfe551be": {
+      "total_transactions": 0,
+      "total_revenue": 0.0,
+      "total_expenses": 0.0,
+      "total_gas_costs": 0.0,
+      "categories": {},
+      "token_summary": {}
+    },
+    "0x6268d07327f4fb7380732dc6d63d95f88c0e083b": {
+      "total_transactions": 0,
+      "total_revenue": 0.0,
+      "total_expenses": 0.0,
+      "total_gas_costs": 0.0,
+      "categories": {},
+      "token_summary": {}
+    },
+    "0x74d63f31c2335b5b3ba7ad2812357672b2624ced": {
+      "total_transactions": 0,
+      "total_revenue": 0.0,
+      "total_expenses": 0.0,
+      "total_gas_costs": 0.0,
+      "categories": {},
+      "token_summary": {}
+    },
+    "0xb5f944600785724e31edb90f9dfa16dbf01af000": {
+      "total_transactions": 0,
+      "total_revenue": 0.0,
+      "total_expenses": 0.0,
+      "total_gas_costs": 0.0,
+      "categories": {},
+      "token_summary": {}
+    },
+    "0xb0e3175341794d1dc8e5f02a02f9d26989ebedb3": {
+      "total_transactions": 0,
+      "total_revenue": 0.0,
+      "total_expenses": 0.0,
+      "total_gas_costs": 0.0,
+      "categories": {},
+      "token_summary": {}
+    },
+    "0x8b92b1698b57bedf2142297e9397875adbb2297e": {
+      "total_transactions": 0,
+      "total_revenue": 0.0,
+      "total_expenses": 0.0,
+      "total_gas_costs": 0.0,
+      "categories": {},
+      "token_summary": {}
+    },
+    "0x38276553f8fbf2a027d901f8be45f00373d8dd48": {
+      "total_transactions": 0,
+      "total_revenue": 0.0,
+      "total_expenses": 0.0,
+      "total_gas_costs": 0.0,
+      "categories": {},
+      "token_summary": {}
+    },
+    "0x5c59d0ec51729e40c413903be6a4612f4e2452da": {
+      "total_transactions": 0,
+      "total_revenue": 0.0,
+      "total_expenses": 0.0,
+      "total_gas_costs": 0.0,
+      "categories": {},
+      "token_summary": {}
+    },
+    "0x9c9aa90363630d4ab1d9dbf416cc3bbc8d3ed502": {
+      "total_transactions": 0,
+      "total_revenue": 0.0,
+      "total_expenses": 0.0,
+      "total_gas_costs": 0.0,
+      "categories": {},
+      "token_summary": {}
+    },
+    "0x4e4c9e7717da5bd1e98a5d723b6b1f964dd30861": {
+      "total_transactions": 0,
+      "total_revenue": 0.0,
+      "total_expenses": 0.0,
+      "total_gas_costs": 0.0,
+      "categories": {},
+      "token_summary": {}
+    }
+  },
+  "chain_summary": {},
+  "category_summary": {},
+  "token_summary": {}
+}

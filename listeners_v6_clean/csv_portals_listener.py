@@ -13,6 +13,12 @@ Key Features:
 - Real-time transaction monitoring
 - Affiliate fee detection and volume calculation
 
+Enhanced Affiliate Detection (Added):
+- ShapeShift DAO Treasury affiliate fee detection
+- Net deposit analysis to ShapeShift treasury
+- ERC-20 transfer pattern recognition for treasury recipients
+- Based on discovery that Portals transactions show affiliate fees flowing TO ShapeShift DAO Treasury
+
 Author: ShapeShift Affiliate Tracker Team
 Version: v6.0 - Clean Centralized CSV
 Date: 2024
@@ -47,7 +53,13 @@ from config_loader import (
 # =============================================================================
 
 class CSVPortalsListener:
-    """CSV-based listener for Portals bridge transactions with ShapeShift affiliate fees"""
+    """CSV-based listener for Portals bridge transactions with ShapeShift affiliate fees
+    
+    Note: Enhanced affiliate detection logic has been added to detect when ShapeShift DAO Treasury
+    receives affiliate fees as net deposits. This method looks for transactions where regular wallets
+    make bridge transactions and the treasury receives affiliate fees on-chain, which is more reliable
+    than event signature detection for Portals transactions.
+    """
     
     def __init__(self):
         """Initialize the Portals listener with centralized configuration"""
@@ -261,17 +273,50 @@ class CSVPortalsListener:
                 'address': contract_address
             }
             
+            self.logger.info(f"🔍 Scanning blocks {start_block} to {end_block} on {chain_name}")
+            self.logger.info(f"📍 Contract address: {contract_address}")
+            
             logs = w3.eth.get_logs(filter_params)
             self.logger.info(f"📋 Found {len(logs)} logs on {chain_name}")
             
+            # Debug: Check if we're scanning the right block range
+            if start_block <= 22774492 <= end_block:
+                self.logger.info(f"🎯 Block 22774492 (known Portals transaction) is in scan range!")
+            else:
+                self.logger.info(f"⚠️ Block 22774492 (known Portals transaction) is NOT in scan range {start_block}-{end_block}")
+            
+            # If no logs found, try scanning without contract address filter (broader search)
+            if len(logs) == 0:
+                self.logger.warning(f"⚠️  No logs found with contract address filter on {chain_name}")
+                self.logger.info(f"🔍 Trying broader search without contract address filter...")
+                
+                broader_filter = {
+                    'fromBlock': start_block,
+                    'toBlock': end_block
+                }
+                
+                broader_logs = w3.eth.get_logs(broader_filter)
+                self.logger.info(f"📋 Broader search found {len(broader_logs)} logs on {chain_name}")
+                
+                if len(broader_logs) > 0:
+                    self.logger.info(f"🔍 Processing broader logs to find Portals-related transactions...")
+                    logs = broader_logs
+                else:
+                    self.logger.warning(f"⚠️  No logs found at all in block range {start_block} to {end_block}")
+                    return []
+            
             # Process each log
-            for log in logs:
+            for i, log in enumerate(logs):
+                self.logger.info(f"🔍 Processing log {i+1}/{len(logs)} on {chain_name}")
                 try:
                     transaction = self._parse_portals_log(w3, log, chain_name)
                     if transaction:
                         transactions.append(transaction)
+                        self.logger.info(f"✅ Found transaction from log {i+1}")
+                    else:
+                        self.logger.info(f"🔍 No transaction found from log {i+1}")
                 except Exception as e:
-                    self.logger.error(f"❌ Error parsing log on {chain_name}: {e}")
+                    self.logger.error(f"❌ Error parsing log {i+1} on {chain_name}: {e}")
                     continue
                     
         except Exception as e:
@@ -291,9 +336,13 @@ class CSVPortalsListener:
             block = w3.eth.get_block(block_number)
             
             # Check for affiliate involvement
+            self.logger.info(f"🔍 Checking affiliate involvement for transaction {tx_hash}")
             affiliate_found = self._check_affiliate_involvement(receipt, tx)
             if not affiliate_found:
+                self.logger.info(f"🔍 No affiliate involvement found for transaction {tx_hash}")
                 return None
+            else:
+                self.logger.info(f"🎯 Affiliate involvement found: {affiliate_found}")
             
             # Create transaction record
             transaction = {
@@ -329,22 +378,118 @@ class CSVPortalsListener:
     
     def _check_affiliate_involvement(self, receipt: Dict, tx: Dict) -> Optional[str]:
         """Check if a transaction involves ShapeShift affiliate"""
-        # Check transaction data for affiliate addresses
+        
+        # =============================================================================
+        # ENHANCED SHAPESHIFT AFFILIATE DETECTION LOGIC
+        # =============================================================================
+        # Based on discovery that net transfers go to ShapeShift DAO Treasury
+        # This provides more reliable detection than event signatures
+        
+        # Method 1: Check for ShapeShift DAO Treasury receiving net transfers
+        # ShapeShift DAO Treasury addresses across chains (from Safe.global)
+        shapeshift_treasury_addresses = [
+            "0x90A48D5CF7343B08dA12E067680B4C6dbfE551Be",  # Ethereum Mainnet
+            "0x9c9aA90363630d4ab1D9dbF416cc3BBC8d3Ed502",  # Base
+            "0x6268d07327f4fb7380732dc6d63d95F88c0E083b",  # Optimism
+            "0x74d63F31C2335b5b3BA7ad2812357672b2624cEd",  # Avalanche
+            "0xB5F944600785724e31Edb90F9DFa16dBF01Af000",  # Polygon
+            "0xb0E3175341794D1dc8E5F02a02F9D26989EbedB3",  # Gnosis Chain
+            "0x8b92b1698b57bEDF2142297e9397875ADBb2297E",  # Binance Smart Chain
+            "0x38276553F8fbf2A027D901F8be45f00373d8Dd48"   # Arbitrum
+        ]
+        
+        for treasury_address in shapeshift_treasury_addresses:
+            if self._check_shapeshift_treasury_involvement(receipt, treasury_address):
+                self.logger.info(f"🎯 Found ShapeShift affiliate transaction via DAO Treasury: {treasury_address}")
+                return f"ShapeShift_DAO_Treasury_{treasury_address[:8]}"
+        
+        # Method 2: Check transaction data for affiliate addresses
         if tx['data']:
             data_hex = tx['data'].hex().lower()
             for affiliate in self.shapeshift_affiliates:
                 if affiliate.lower().replace('0x', '') in data_hex:
+                    self.logger.info(f"🎯 Found ShapeShift affiliate transaction via data field: {affiliate}")
                     return affiliate
         
-        # Check logs for affiliate addresses
+        # Method 3: Check logs for affiliate addresses
         for log_entry in receipt['logs']:
             if log_entry['data']:
                 data_hex = log_entry['data'].hex().lower()
                 for affiliate in self.shapeshift_affiliates:
                     if affiliate.lower().replace('0x', '') in data_hex:
+                        self.logger.info(f"🎯 Found ShapeShift affiliate transaction via log data: {affiliate}")
                         return affiliate
         
         return None
+    
+    def _check_shapeshift_treasury_involvement(self, receipt: Dict, treasury_address: str) -> bool:
+        """Check if ShapeShift DAO Treasury receives affiliate fees as net deposits"""
+        try:
+            # Look for transactions where ShapeShift DAO Treasury receives affiliate fees
+            # This happens when regular wallets make bridge transactions and treasury gets net deposits
+            
+            # Method 1: Check for ERC-20 transfers TO the ShapeShift DAO Treasury
+            # ERC-20 Transfer event: Transfer(address from, address to, uint256 value)
+            transfer_topic = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+            
+            treasury_received_funds = False
+            
+            self.logger.info(f"🔍 Checking {len(receipt['logs'])} logs for ShapeShift treasury involvement...")
+            
+            for i, log_entry in enumerate(receipt['logs']):
+                if (log_entry['topics'] and 
+                    len(log_entry['topics']) >= 3 and 
+                    log_entry['topics'][0].hex() == transfer_topic):
+                    
+                    self.logger.info(f"🔍 Log {i}: Found ERC-20 transfer event")
+                    
+                    # Check if the recipient (topic[2]) is the ShapeShift DAO Treasury
+                    if len(log_entry['topics']) >= 3:
+                        recipient = log_entry['topics'][2].hex()
+                        self.logger.info(f"🔍 Log {i}: Transfer recipient: {recipient}")
+                        self.logger.info(f"🔍 Log {i}: Looking for treasury: {treasury_address}")
+                        
+                        if recipient.lower().endswith(treasury_address.lower().replace('0x', '')):
+                            self.logger.info(f"🎯 Found ERC-20 transfer TO ShapeShift DAO Treasury: {treasury_address}")
+                            self.logger.info(f"   Transfer recipient: {recipient}")
+                            treasury_received_funds = True
+                            break
+            
+            # Method 2: Check for any log where treasury appears as recipient
+            # This catches other types of transfers or events where treasury receives funds
+            if not treasury_received_funds:
+                for log_entry in receipt['logs']:
+                    # Check if the treasury address appears in topics (likely as recipient)
+                    if log_entry['topics']:
+                        for topic in log_entry['topics']:
+                            topic_hex = topic.hex().lower()
+                            if treasury_address.lower().replace('0x', '') in topic_hex.lower():
+                                self.logger.info(f"🎯 ShapeShift DAO Treasury found in log topic (likely recipient): {treasury_address}")
+                                treasury_received_funds = True
+                                break
+                    
+                    if treasury_received_funds:
+                        break
+            
+            # Method 3: Check if treasury appears in data (could be recipient info)
+            if not treasury_received_funds:
+                for log_entry in receipt['logs']:
+                    if log_entry['data']:
+                        data_hex = log_entry['data'].hex().lower()
+                        if treasury_address.lower().replace('0x', '') in data_hex.lower():
+                            self.logger.info(f"🎯 ShapeShift DAO Treasury found in log data (likely recipient): {treasury_address}")
+                            treasury_received_funds = True
+                            break
+            
+            if treasury_received_funds:
+                self.logger.info(f"🎯 ShapeShift DAO Treasury received affiliate fees in this transaction")
+                return True
+            
+            return False
+            
+        except Exception as e:
+            self.logger.error(f"❌ Error checking ShapeShift treasury involvement: {e}")
+            return False
     
     def _extract_volume_and_fees(self, w3: Web3, receipt: Dict, transaction: Dict):
         """Extract volume and fee information from transaction receipt"""
@@ -376,7 +521,8 @@ class CSVPortalsListener:
 # MAIN LISTENER EXECUTION
 # =============================================================================
 
-    def run_listener(self, chains: Optional[List[str]] = None, max_blocks: Optional[int] = None):
+    def run_listener(self, chains: Optional[List[str]] = None, max_blocks: Optional[int] = None, 
+                    start_block_override: Optional[int] = None, end_block_override: Optional[int] = None):
         """Run the Portals listener for specified chains"""
         if chains is None:
             chains = list(self.web3_connections.keys())
@@ -387,6 +533,10 @@ class CSVPortalsListener:
         self.logger.info(f"🚀 Starting Portals listener for chains: {chains}")
         self.logger.info(f"📊 Max blocks per scan: {max_blocks}")
         
+        # Check for block override (for testing specific ranges)
+        if start_block_override is not None or end_block_override is not None:
+            self.logger.info(f"🎯 BLOCK OVERRIDE: Start={start_block_override}, End={end_block_override}")
+        
         total_transactions = 0
         
         for chain_name in chains:
@@ -395,11 +545,26 @@ class CSVPortalsListener:
                 continue
             
             try:
-                # Get block range to process
-                start_block = self.get_last_processed_block(chain_name)
                 w3 = self.web3_connections[chain_name]['web3']
                 current_block = w3.eth.block_number
-                end_block = min(start_block + max_blocks, current_block)
+                
+                # Determine block range to process
+                if start_block_override is not None and end_block_override is not None:
+                    # Use override blocks (for testing specific ranges)
+                    start_block = start_block_override
+                    end_block = end_block_override
+                    self.logger.info(f"🔍 {chain_name}: Using override blocks {start_block} to {end_block}")
+                else:
+                    # Use normal block tracking
+                    start_block = self.get_last_processed_block(chain_name)
+                    self.logger.info(f"🔍 {chain_name}: Current block: {current_block}, Start block: {start_block}")
+                    
+                    # If no blocks processed yet, start from a reasonable recent block
+                    if start_block == 0:
+                        start_block = max(0, current_block - 1000)  # Start from 1000 blocks ago
+                        self.logger.info(f"🔍 {chain_name}: No previous blocks, starting from: {start_block}")
+                    
+                    end_block = min(start_block + max_blocks, current_block)
                 
                 if start_block >= end_block:
                     self.logger.info(f"✅ {chain_name}: No new blocks to process")
@@ -417,8 +582,9 @@ class CSVPortalsListener:
                         self.save_transactions_to_csv(transactions)
                         total_transactions += len(transactions)
                     
-                    # Update block tracker
-                    self.update_block_tracker(chain_name, chunk_end)
+                    # Update block tracker (only if not using override)
+                    if start_block_override is None:
+                        self.update_block_tracker(chain_name, chunk_end)
                     
                     # Rate limiting
                     time.sleep(self.delay)
@@ -478,9 +644,37 @@ class CSVPortalsListener:
 
 def main():
     """Main function to run the Portals listener"""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Portals Listener with Block Override Options')
+    parser.add_argument('--start-block', type=int, help='Override start block for testing')
+    parser.add_argument('--end-block', type=int, help='Override end block for testing')
+    parser.add_argument('--test-known-block', action='store_true', 
+                       help='Test on known block 22774492 where ShapeShift transaction exists')
+    
+    args = parser.parse_args()
+    
     try:
         listener = CSVPortalsListener()
-        total_transactions = listener.run_listener()
+        
+        # Check for test mode
+        if args.test_known_block:
+            print("🎯 TESTING KNOWN BLOCK: 22774492 (where ShapeShift transaction exists)")
+            start_block = 22774492
+            end_block = 22774493  # Scan just this block
+            total_transactions = listener.run_listener(
+                start_block_override=start_block, 
+                end_block_override=end_block
+            )
+        elif args.start_block is not None and args.end_block is not None:
+            print(f"🎯 CUSTOM BLOCK RANGE: {args.start_block} to {args.end_block}")
+            total_transactions = listener.run_listener(
+                start_block_override=args.start_block, 
+                end_block_override=args.end_block
+            )
+        else:
+            print("🚀 RUNNING NORMAL LISTENER MODE")
+            total_transactions = listener.run_listener()
         
         stats = listener.get_csv_stats()
         
@@ -495,6 +689,13 @@ def main():
         
         print(f"\n✅ Portals listener completed successfully!")
         print(f"   Total events found: {total_transactions}")
+        
+        if args.test_known_block and total_transactions == 0:
+            print(f"\n⚠️  WARNING: No transactions found in known block 22774492")
+            print(f"💡 This suggests the detection logic may still have issues")
+        elif args.test_known_block and total_transactions > 0:
+            print(f"\n🎯 SUCCESS: Found {total_transactions} transactions in known block!")
+            print(f"💡 The Portals listener is now working correctly")
         
     except Exception as e:
         logging.error(f"❌ Error running Portals listener: {e}")
