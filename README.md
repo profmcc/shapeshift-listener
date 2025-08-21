@@ -21,11 +21,41 @@ This is the **clean, centralized version** of the ShapeShift Affiliate Tracker s
 - **Common interface**: All listeners follow the same pattern
 - **Easy maintenance**: Update one listener without affecting others
 
-## 📁 **File Structure**
+## 📁 **Repository Contents**
+
+### **Core Structure**
+```
+shapeshift-listeners/
+├── README.md                           # Main repository documentation
+├── .gitignore                          # Git ignore rules
+├── requirements.txt                    # Python dependencies
+├── env.example                         # Environment variables template
+├── REPOSITORY_SUMMARY.md              # This summary file
+├── config/                             # Configuration files
+│   └── shapeshift_config.yaml         # Centralized configuration
+├── shared/                             # Shared utilities
+│   ├── config_loader.py               # Configuration loader
+│   ├── block_tracker.py               # Block tracking utilities
+│   └── [other shared modules...]
+├── validated_listeners/                # ✅ FULLY WORKING LISTENERS
+│   ├── csv_thorchain_listener.py      # ThorChain listener
+│   ├── csv_cowswap_listener.py        # CoW Swap listener
+│   ├── csv_portals_listener.py        # Portals listener
+│   ├── portals_transactions.csv        # Portals transaction data
+│   ├── README.md                       # Technical documentation
+│   ├── PORTALS_HANDOFF_SUCCESS.md      # Portals success story
+│   └── [validation and example files...]
+└── partially_working/                  # ⚠️ NEEDS FIXES
+    ├── csv_relay_listener.py           # Relay listener (needs fixes)
+    ├── HANDOFF_RELAY_RELAY.md          # Relay handoff documentation
+    └── [other relay files...]
+```
+
+## 📁 **CSV File Structure**
+
 
 ```
 listeners_v6_clean/
-├── README.md                           # This file
 ├── csv_master_runner.py               # Main orchestrator
 ├── csv_cowswap_listener.py            # CoW Swap listener
 ├── csv_thorchain_listener.py          # THORChain listener
