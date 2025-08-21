@@ -80,7 +80,7 @@ def analyze_relay_pattern():
                         receipt = w3.eth.get_transaction_receipt(tx_hash)
                         
                         # Look for ShapeShift affiliate address
-                        affiliate_address = "0x2905d7e4d048d29954f81b02171dd313f457a4a4"
+                        affiliate_address = "0x9c9aA90363630d4ab1D9dbF416cc3BBC8d3Ed502"
                         has_affiliate_fee = False
                         
                         # Look for ERC-20 transfers to identify users and affiliate fees

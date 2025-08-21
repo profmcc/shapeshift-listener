@@ -1,5 +1,5 @@
-affiliate_address: "0x2905d7e4d048d29954f81b02171dd313f457a4a4"
-claiming_address: "0x2905d7e4d048d29954f81b02171dd313f457a4a4"
+affiliate_address: "0x9c9aA90363630d4ab1D9dbF416cc3BBC8d3Ed502"
+claiming_address: "0x9c9aA90363630d4ab1D9dbF416cc3BBC8d3Ed502"
 chains:
   - name: base
     rpc_url: https://base-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}

@@ -33,7 +33,7 @@ def test_relay_listener_detection():
     
     # Test the specific transaction we found
     tx_hash = "0x82e227c1a0ad367e05de21fd49bc375a261a7dd6cfd6d7e0196365e70e884bb0"
-    affiliate_address = "0x2905d7e4d048d29954f81b02171dd313f457a4a4"
+    affiliate_address = "0x9c9aA90363630d4ab1D9dbF416cc3BBC8d3Ed502"
     
     print(f"\n🔍 Testing Relay listener detection logic on transaction: {tx_hash}")
     
